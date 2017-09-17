@@ -1,0 +1,26 @@
+{
+  "name": "discord_bot_dev",
+  "version": "0.0.1",
+  "engines": {
+    "node": "8.5.0"
+  },
+  "description": "Discord Bot for development and testing",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "keywords": [
+    "Discord",
+    "Bot",
+    "Dev"
+  ],
+  "author": "Stian Myklebostad",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.2.1",
+    "ffmpeg-binaries": "^3.2.2-3",
+    "node-opus": "^0.2.7",
+    "snekfetch": "^3.3.0",
+    "ytdl-core": "github:fent/node-ytdl-core#master"
+  }
+}
