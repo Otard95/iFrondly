@@ -70,10 +70,10 @@ module.exports = function (commands, app){
         }
 
         // leave the channel
-
+        var tempName = app.voiceChannel.name;
         app.voiceChannel.leave();
         app.voiceChannel = undefined;
-        resolve("Left channel '" + app.voiceChannel.name + "'");
+        resolve("Left channel '" + tempName + "'");
 
       });
 
