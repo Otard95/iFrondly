@@ -84,7 +84,6 @@ module.exports = class MusicPlayer {
 
   cleanup () {
     this.stop();
-    delete this.dispatcher;
   }
 
 };
