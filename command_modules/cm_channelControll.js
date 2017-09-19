@@ -72,6 +72,7 @@ module.exports = function (commands, app){
         // leave the channel
 
         app.voiceChannel.leave();
+        app.voiceChannel = undefined;
         resolve("Left channel '" + app.voiceChannel.name + "'");
 
       });
