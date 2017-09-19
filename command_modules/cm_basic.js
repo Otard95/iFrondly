@@ -19,7 +19,7 @@ module.exports = function (commands) {
 
         if (params.length > 0) {
           if (!commands.exists(params[0])) {
-            msg.channel.send('`' + config.prefix + params[0] +
+            msg.channel.send('`' + app.config.prefix + params[0] +
                              '` is not a command. Use `!help` ' +
                              'to see available commands.');
             reject('Failed to help - unknown command');
