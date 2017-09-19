@@ -22,13 +22,14 @@ module.exports = class MusicPlayer {
                                       '\nSongs left in the queue: ' +
                                       this.queue.length);
     this.playing = true;
+    var ytStream = this.yt(song.url,{ audioonly: true });
     this.voiceConnection
-      .playStream(this.yt(song.url,{ audioonly: true }),
+      .playStream(ytStream,
                   {volume: this.config.defaultVolume,
                    passes: this.config.passes});
 		this.voiceConnection.dispatcher.on('end', () => {
       this.skipVote = undefined;
-      if (this.queue.length === 0) {
+      if (this.queue.length == 0) {
         this.currentlyPlaying.originalMessage
           .channel.send('That was the last one, show\'s over.');
         this.currentlyPlaying = undefined;
