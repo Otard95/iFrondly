@@ -30,18 +30,19 @@ module.exports = class MusicPlayer {
                      passes: this.config.passes});
 		this.dispatcher.on('end', () => {
       this.skipVote = undefined;
+      this.dispatcher = undefined;
       if (this.queue.length === 0) {
         this.currentlyPlaying.originalMessage
           .channel.send('That was the last one, show\'s over.');
         this.currentlyPlaying = undefined;
-        this.dispatcher = undefined;
         this.playing = false;
         return;
       }
       this.startStream(this.queue.shift());
 		});
 		this.dispatcher.on('error', (err) => {
-			console.log('error: ' + err)
+			console.log('error: ' + err);
+      this.playing = false;
       song.originalMessage.author.send('Sadly i could not play "' + song.name +
                                        '" for you. I ran into some problems');
       this.dispatcher.end();

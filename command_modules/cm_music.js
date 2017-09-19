@@ -132,6 +132,7 @@ module.exports = function (commands, app) {
                                                info.title,
                                                info.length_seconds,
                                                msg));
+          console.log(app.musicPlayer.queue);
           resolve('Song added to queue.');
     		});
 
@@ -146,6 +147,15 @@ module.exports = function (commands, app) {
     commands.add('skip', (msg, params) => {
 
       return new Promise((resolve, reject) => {
+
+
+        // check is there is even a song playing
+        if (!app.musicPlayer.playing) {
+          // no song playing
+          msg.reply('There is no song playing.');
+          reject('Failed skip vote - no song playing');
+          return;
+        }
 
         if (app.musicPlayer.isVoting()) {
           // !!!###!!! a vote is ongoing register this vote !!!###!!!
@@ -177,13 +187,6 @@ module.exports = function (commands, app) {
           } // END resoult prosessing
         } else {
           // !!!###!!! no vote started yet, start one !!!###!!!
-          // check is there is even a song playing
-          if (!app.musicPlayer.playing) {
-            // no song playing
-            msg.reply('There is no song playing.');
-            reject('Failed skip vote - no song playing');
-            return;
-          }
           // if ony one user in channel skip regardless
           if (app.voiceChannel.members.filterArray((m) => {
             return !m.user.bot;
@@ -206,8 +209,8 @@ module.exports = function (commands, app) {
                                           }), res);
                         resolve('Skip vote started');
                       }).catch((err) => {
-                       reject('Skip vote start - failed to start vote '+
-                              '| err: ' + err);
+                        reject('Skip vote start - failed to start vote '+
+                               '| err: ' + err);
                       });
         }
 
