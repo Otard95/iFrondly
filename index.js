@@ -8,7 +8,7 @@ var config = require('./config.json');
 /*
   Package imports
 */
-const Discord     = require('Discord.js');
+const Discord     = require('discord.js');
 const yt          = require('ytdl-core');
 const App         = require('./classes/app_class.js');
 const MusicPlayer = require('./classes/musicPlayer_class');
