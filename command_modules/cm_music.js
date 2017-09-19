@@ -20,7 +20,7 @@ module.exports = function (commands, app) {
         }
 
         // make sure bot is in a voice channel
-        if (!app.musicPlayer.voiceConnection){
+        if (!app.voiceChannel || !app.musicPlayer.voiceConnection){
           console.log('Play - Joining voice channel');
           return commands.join.run(msg, []).then((res) => { // try to join vc
             // Success! retry play
@@ -68,9 +68,9 @@ module.exports = function (commands, app) {
         } // END IF
 
         // if there is a dispatcher resume it and resolve
-        if (app.musicPlayer.dispatcher) {
+        if (app.musicPlayer.voiceConnection.dispatcher) {
           app.musicPlayer.playing = true;
-          app.musicPlayer.dispatcher.resume();
+          app.musicPlayer.voiceConnection.dispatcher.resume();
           msg.reply('There where song songs in the queue form earlier. '+
                     'I\'ll resume from there.');
           resolve('Succeeded to play - resume');
@@ -109,7 +109,7 @@ module.exports = function (commands, app) {
           return;
         }
         app.musicPlayer.playing = false;
-        app.musicPlayer.dispatcher.pause();
+        app.musicPlayer.voiceConnection.dispatcher.pause();
         resolve('Succeeded in pausing');
 
       });
@@ -165,7 +165,7 @@ module.exports = function (commands, app) {
             if (res.done) {
               // vote passed, skip song
               res.msg.channel.send('Vote passed. Skipping song.');
-              app.musicPlayer.dispatcher.end();
+              app.musicPlayer.voiceConnection.dispatcher.end();
               resolve('Skip vote passed - skipping song');
             } else {
               // update status
@@ -192,7 +192,7 @@ module.exports = function (commands, app) {
             return !m.user.bot;
           }).length <= 1) {
             msg.channel.send('Skipping song.');
-            app.musicPlayer.dispatcher.end();
+            app.musicPlayer.voiceConnection.dispatcher.end();
             resolve('Skip vote - ony 1 user, skipping');
             return;
           }
