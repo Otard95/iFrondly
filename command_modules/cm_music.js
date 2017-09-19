@@ -177,10 +177,14 @@ module.exports = function (commands, app) {
           } // END resoult prosessing
         } else {
           // !!!###!!! no vote started yet, start one !!!###!!!
+          // check is there is even a song playing
+          if (!app.musicPlayer.playing) {
+            // no song playing
+            msg.reply('There is no song playing.');
+            reject('Failed skip vote - no song playing');
+            return;
+          }
           // if ony one user in channel skip regardless
-          console.log(app.voiceChannel.members.filterArray((m) => {
-            return !m.user.bot;
-          }).length);
           if (app.voiceChannel.members.filterArray((m) => {
             return !m.user.bot;
           }).length <= 1) {

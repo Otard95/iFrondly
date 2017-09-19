@@ -41,12 +41,10 @@ module.exports = class MusicPlayer {
       this.startStream(this.queue.shift());
 		});
 		this.dispatcher.on('error', (err) => {
-			return console.log('error: ' + err).then(() => {
-        song.requestedBy.send('Sadly i could not play "' + song.name +
-                              '" for you. I ran into some problems');
-        if (this.queue.length === 0) this.dispatcher.end();
-        this.startStream(this.queue.shift());
-			});
+			console.log('error: ' + err)
+      song.originalMessage.author.send('Sadly i could not play "' + song.name +
+                                       '" for you. I ran into some problems');
+      this.dispatcher.end();
 		});
   }
 
