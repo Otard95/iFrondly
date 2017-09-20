@@ -132,7 +132,6 @@ module.exports = function (commands, app) {
                                                info.title,
                                                info.length_seconds,
                                                msg));
-          console.log('Debug: Songadded to Queue | queue: ', app.musicPlayer.queue);
           resolve('Song added to queue.');
     		});
 
@@ -192,14 +191,12 @@ module.exports = function (commands, app) {
           if (app.voiceChannel.members.filterArray((m) => {
             return !m.user.bot;
           }).length <= 1) {
-            console.log('Debug: 1 user do skip');
             msg.channel.send('Skipping song.');
             app.musicPlayer.skip().then((res)=> {
               resolve('Skip vote - ony 1 user, skipping');
             });
             return;
           }
-          console.log('Debug: starting skip vote');
           // otherwise start vote
           msg.channel.send('A vote to skip this song has been started. '+
                            'Use `!skip` to vote.')
