@@ -40,10 +40,7 @@ module.exports = class MusicPlayer {
           .channel.send('That was the last one, show\'s over.');
         this.currentlyPlaying = undefined;
         this.playing = false;
-        return;
       }
-      console.log('Debug: do startStream()');
-      this.startStream(this.queue.shift());
 		});
 		this.voiceConnection.dispatcher.on('error', (err) => {
 			console.log('error: ' + err);
@@ -88,6 +85,22 @@ module.exports = class MusicPlayer {
     res.status = false;
     res.err = ret;
     return res;
+
+  }
+
+  skip () {
+
+    return new Promise((resolve, reject) => {
+
+      this.voiceConnection.dispatcher.end();
+
+      // give the dispather a second to end
+      setTimeout(()=> {
+        this.startStream(this.queue.shift());
+        resolve();
+      }, 800);
+
+    });
 
   }
 

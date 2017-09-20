@@ -165,8 +165,9 @@ module.exports = function (commands, app) {
             if (res.done) {
               // vote passed, skip song
               res.msg.channel.send('Vote passed. Skipping song.');
-              app.musicPlayer.voiceConnection.dispatcher.end();
-              resolve('Skip vote passed - skipping song');
+              app.musicPlayer.skip().then((res)=> {
+                resolve('Skip vote passed - skipping song');
+              });
             } else {
               // update status
                res.msg.edit(app.config.skipVoteMsgPrefab
@@ -193,8 +194,9 @@ module.exports = function (commands, app) {
           }).length <= 1) {
             console.log('Debug: 1 user do skip');
             msg.channel.send('Skipping song.');
-            app.musicPlayer.voiceConnection.dispatcher.end();
-            resolve('Skip vote - ony 1 user, skipping');
+            app.musicPlayer.skip().then((res)=> {
+              resolve('Skip vote - ony 1 user, skipping');
+            });
             return;
           }
           console.log('Debug: starting skip vote');
