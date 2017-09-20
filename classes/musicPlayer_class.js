@@ -15,7 +15,6 @@ module.exports = class MusicPlayer {
   }
 
   startStream (song) {
-    console.log('Debug: in startStream()');
     this.currentlyPlaying = song;
     song.originalMessage.channel.send('Playing "' + song.name +
                                       '" as requested by ' +
@@ -23,19 +22,14 @@ module.exports = class MusicPlayer {
                                       '\nSongs left in the queue: ' +
                                       this.queue.length);
     this.playing = true;
-    console.log('Debug: startStream() prep done | queue: ', this.queue);
     var ytStream = this.yt(song.url,{ audioonly: true });
     this.voiceConnection
       .playStream(ytStream,
                   {volume: this.config.defaultVolume,
                    passes: this.config.passes});
-    console.log('Debug: vc.playStream() done | vc.dispatcher.destroyed: ',
-                this.voiceConnection.dispatcher.destroyed);
 		this.voiceConnection.dispatcher.on('end', () => {
-      console.log('Debug: on end invoced');
       this.skipVote = undefined;
       if (this.queue.length == 0) {
-        console.log('Debug: queue empty');
         this.currentlyPlaying.originalMessage
           .channel.send('That was the last one, show\'s over.');
         this.currentlyPlaying = undefined;
@@ -47,7 +41,6 @@ module.exports = class MusicPlayer {
       this.playing = false;
       song.originalMessage.author.send('Sadly i could not play "' + song.name +
                                        '" for you. I ran into some problems');
-      console.log('Debug: in vc.dispatcher.on(\'error\')');
       this.voiceConnection.dispatcher.end();
 		});
   }
@@ -94,11 +87,17 @@ module.exports = class MusicPlayer {
 
       this.voiceConnection.dispatcher.end();
 
+      // if songs left in queue
       // give the dispather a second to end
-      setTimeout(()=> {
-        this.startStream(this.queue.shift());
-        resolve();
-      }, 800);
+      // then play next
+      if(this.queue.length > 0) {
+        setTimeout(()=> {
+          this.startStream(this.queue.shift());
+          resolve('play next');
+        }, 800);
+      } else {
+        resolve('queue empty');
+      }
 
     });
 
