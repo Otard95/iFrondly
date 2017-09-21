@@ -5,13 +5,24 @@ const SkipVote = require('./skipVote_class.js');
 module.exports = class MusicPlayer {
 
   constructor (ytdl, config) {
-    this.queue = [];
-    this.playing = false;
-    this.voiceConnection = undefined;
-    this.yt = ytdl;
-    this.config = config;
-    this.skipVote = undefined;
-    this.currentlyPlaying = undefined;
+    this.queue = []; // the array that is the song queue
+    this.playing = false; /* if there is a song playing
+                            (regardless of if a song is paused) */
+    this.voiceConnection = undefined; /* the voice connection
+                                          to the voice channel */
+    this.yt = ytdl; // ytdl-core
+    this.config = config; // what do you tink
+    this.currentlyPlaying = undefined; /* the song currently
+                                          playing or paused */
+    this.skipVote = undefined; /* if users are voting to skip the
+                                  current song this controlles the vote */
+    this.isSkipping = false; /* If we kurrently are in the prosess
+                              of skipping a song */
+    this.playNext = function () {
+      setTimeout(() => {
+        this.startStream(this.queue.shift());
+      }, 800);
+    }; // END Func
   }
 
   startStream (song) {
@@ -23,10 +34,13 @@ module.exports = class MusicPlayer {
                                       this.queue.length);
     this.playing = true;
     var ytStream = this.yt(song.url,{ audioonly: true });
-    this.voiceConnection
-      .playStream(ytStream,
-                  {volume: this.config.defaultVolume,
-                   passes: this.config.passes});
+    var options = {volume: this.config.defaultVolume,
+                   passes: this.config.passes};
+
+    this.voiceConnection.playStream(ytStream, options);
+
+    this.isSkipping = false;
+
 		this.voiceConnection.dispatcher.on('end', () => {
       this.skipVote = undefined;
       if (this.queue.length == 0) {
@@ -34,8 +48,11 @@ module.exports = class MusicPlayer {
           .channel.send('That was the last one, show\'s over.');
         this.currentlyPlaying = undefined;
         this.playing = false;
+        return; // since queue is empty don't play next
       }
+      if (!this.isSkipping) this.playNext();
 		});
+
 		this.voiceConnection.dispatcher.on('error', (err) => {
 			console.log('error: ' + err);
       this.playing = false;
@@ -43,6 +60,7 @@ module.exports = class MusicPlayer {
                                        '" for you. I ran into some problems');
       this.voiceConnection.dispatcher.end();
 		});
+
   }
 
   stop () {
@@ -84,6 +102,8 @@ module.exports = class MusicPlayer {
   skip () {
 
     return new Promise((resolve, reject) => {
+
+      this.isSkipping = true;
 
       this.voiceConnection.dispatcher.end();
 
