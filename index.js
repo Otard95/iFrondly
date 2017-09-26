@@ -23,7 +23,8 @@ var app = new App(client, yt, config);
 /*
   Setup Commands
 */
-var commands = require('./commands.js');
+var Commands = require('./commands.js');
+var commands = new Commands();
 var basic_commands =
       require('./command_modules/cm_basic.js')(commands);
 var channelControll_connamds =

@@ -68,6 +68,7 @@ module.exports = class MusicPlayer {
     this.skipVote = undefined;
     this.playing = false;
     this.currentlyPlaying = undefined;
+    if (!this.voiceConnection) return; 
     if (this.voiceConnection.dispatcher) this.voiceConnection.dispatcher.end();
   }
 
