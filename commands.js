@@ -1,19 +1,27 @@
 /*jshint esversion: 6 */
 
-var c = {
-  exists: (name) => {
+module.exports = class {
+
+  constructor () {
+
+  }
+
+  exists (name) {
     if (name == 'exists' || name == 'add' || name == 'formatMsg') return false;
     return c.hasOwnProperty(name);
-  },
-  add: (name, func, argCount, argTypes, description) => {
-    c[name] = {
+  }
+
+  add (name, func, argCount, argTypes, description) {
+    if (this.exists(name)) throw 'Command all ready added.';
+    this[name] = {
       run: func,
       argc: argCount,
       argt: argTypes,
       desc: description
     };
-  },
-  formatMsg: (input) => {
+  }
+
+  formatMsg (input) {
     input = input.substr(1);
     var parts = input.split(' ');
     return {
@@ -21,6 +29,5 @@ var c = {
       params: parts.slice(1)
     };
   }
-};
 
-module.exports = c;
+};
