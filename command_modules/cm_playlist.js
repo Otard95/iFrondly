@@ -8,9 +8,11 @@ module.exports = function (commands, app) {
   let mod = {};
 
   mod.init = () => {
-    commands.add('newplaylist', (msg, params) => {
+    commands.add('newPlaylist', (msg, params) => {
 
-    }, 0, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
+      
+
+    }, 1, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
                       '             Example:\n' +
                       '              > !play // plays the current song or the next from queue\n' +
                       '              > !play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link');

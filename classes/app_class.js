@@ -4,12 +4,13 @@ const MusicPlayer = require('./musicPlayer_class.js');
 
 module.exports = class App {
 
-  constructor (client, ytdl, config) {
+  constructor (client, ytdl, config, db) {
     this.client = client;
     this.musicPlayer = new MusicPlayer(ytdl, config);
     this.voiceChannel = undefined;
     this.yt = ytdl;
     this.config = config;
+    this.db = db;
   }
 
   cleanup () {

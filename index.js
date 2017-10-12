@@ -13,12 +13,15 @@ const yt          = require('ytdl-core');
 const App         = require('./classes/app_class.js');
 const MusicPlayer = require('./classes/musicPlayer_class');
 const util        = require('./bin/utils.js');
+const sJsonDb    = require('simple_json_database');
 
 /*
-  Setup Client and App object
+  Setup Client, App and Database object
 */
 const client  = new Discord.Client();
-let app = new App(client, yt, config);
+const db      = new sJsonDb('sJSON_DB');
+db.init();
+let app       = new App(client, yt, config, db);
 
 /*
   Setup Commands
