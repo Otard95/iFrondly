@@ -13,10 +13,10 @@ module.exports = class App {
   }
 
   cleanup () {
-    if(this.voiceChannel) this.voiceChannel.leave();
-    delete this.voiceChannel;
     if (this.musicPlayer) this.musicPlayer.cleanup();
     delete this.musicPlayer;
+    if(this.voiceChannel) this.voiceChannel.leave();
+    delete this.voiceChannel;
   }
 
 };
