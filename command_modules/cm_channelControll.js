@@ -2,14 +2,14 @@
 
 module.exports = function (commands, app){
 
-  var mod = {};
+  let mod = {};
 
   mod.init = () => {
     commands.add('join', (msg, params) => {
 
       return new Promise((resolve, reject) => {
 
-      var voiceChannel;
+      let voiceChannel;
         // Check if channel name is specified
         if (params[0]) {
 
@@ -70,7 +70,7 @@ module.exports = function (commands, app){
         }
 
         // leave the channel
-        var tempName = app.voiceChannel.name;
+        let tempName = app.voiceChannel.name;
         app.voiceChannel.leave();
         app.voiceChannel = undefined;
         resolve("Left channel '" + tempName + "'");

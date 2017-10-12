@@ -1,11 +1,11 @@
 /*jshint esversion: 6 */
 
-var util   = require('../utils.js');
+let util   = require('../utils.js');
 const Song = require('../classes/Song_class.js');
 
 module.exports = function (commands, app) {
 
-  var mod = {};
+  let mod = {};
 
   mod.init = () => {
     commands.add('play', (msg, params) => {
@@ -87,7 +87,7 @@ module.exports = function (commands, app) {
         }
 
         // Play next song from queue
-        var song = app.musicPlayer.queue.shift();
+        let song = app.musicPlayer.queue.shift();
         app.musicPlayer.startStream(song);
         resolve('Succeeded to play - next in queue: ' + song.name);
 
@@ -158,7 +158,7 @@ module.exports = function (commands, app) {
 
         if (app.musicPlayer.isVoting()) {
           // !!!###!!! a vote is ongoing register this vote !!!###!!!
-          var res = app.musicPlayer.voteToSkip(msg.member.id);
+          let res = app.musicPlayer.voteToSkip(msg.member.id);
           // prosess resoult
           if (res.status) { // ### vote registered
             if (res.done) {

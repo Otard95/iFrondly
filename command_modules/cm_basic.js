@@ -2,7 +2,7 @@
 
 module.exports = function (commands) {
 
-  var mod = {};
+  let mod = {};
 
   mod.init = () => {
     // Add 'ping' command
@@ -30,7 +30,7 @@ module.exports = function (commands) {
           return;
         }
 
-        var outString = '```\n' + commands.help.desc + '\n\n';
+        let outString = '```\n' + commands.help.desc + '\n\n';
         for (let c in commands) {
           if (commands.exists(c) && c != 'help') {
             outString += commands[c].desc + '\n\n';
