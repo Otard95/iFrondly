@@ -8,7 +8,7 @@ module.exports = class {
 
   exists (name) {
     if (name == 'exists' || name == 'add' || name == 'formatMsg') return false;
-    return c.hasOwnProperty(name);
+    return this.hasOwnProperty(name);
   }
 
   add (name, func, argCount, argTypes, description) {

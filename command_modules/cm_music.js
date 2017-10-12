@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 /*jshint node: true */
 
-let util   = require('../utils.js');
+let util   = require('../bin/utils.js');
 const Song = require('../classes/Song_class.js');
 
 module.exports = function (commands, app) {
