@@ -33,8 +33,8 @@ module.exports = class MusicPlayer {
                                       '\nSongs left in the queue: ' +
                                       this.queue.length);
     this.playing = true;
-    var ytStream = this.yt(song.url,{ audioonly: true });
-    var options = {volume: this.config.defaultVolume,
+    let ytStream = this.yt(song.url,{ audioonly: true });
+    let options = {volume: this.config.defaultVolume,
                    passes: this.config.passes};
 
     this.voiceConnection.playStream(ytStream, options);
@@ -68,7 +68,7 @@ module.exports = class MusicPlayer {
     this.skipVote = undefined;
     this.playing = false;
     this.currentlyPlaying = undefined;
-    if (!this.voiceConnection) return; 
+    if (!this.voiceConnection) return;
     if (this.voiceConnection.dispatcher) this.voiceConnection.dispatcher.end();
   }
 
@@ -84,8 +84,8 @@ module.exports = class MusicPlayer {
   }
 
   voteToSkip (memberId) {
-    var res = {};
-    var ret = this.skipVote.vote(memberId);
+    let res = {};
+    let ret = this.skipVote.vote(memberId);
     if (typeof ret === 'boolean') {
       res.status = true;
       res.done = ret;

@@ -3,7 +3,7 @@
 /*
   Config setup
 */
-var config = require('./bin/config.json');
+let config = require('./bin/config.json');
 
 /*
   Package imports
@@ -18,18 +18,18 @@ const util        = require('./bin/utils.js');
   Setup Client and App object
 */
 const client  = new Discord.Client();
-var app = new App(client, yt, config);
+let app = new App(client, yt, config);
 
 /*
   Setup Commands
 */
-var Commands = require('./bin/commands.js');
-var commands = new Commands();
-var basic_commands =
+let Commands = require('./bin/commands.js');
+let commands = new Commands();
+let basic_commands =
       require('./command_modules/cm_basic.js')(commands);
-var channelControll_connamds =
+let channelControll_connamds =
       require('./command_modules/cm_channelControll.js')(commands, app);
-var music_commands =
+let music_commands =
       require('./command_modules/cm_music.js')(commands, app);
 
 basic_commands.init();
@@ -53,7 +53,7 @@ client.on('message', (msg)=>{
   if (!msg.content.startsWith(config.prefix) || msg.author.bot) return;
 
   // Format message to get command and parameters separate
-  var c = commands.formatMsg(msg.content);
+  let c = commands.formatMsg(msg.content);
 
   // Check if the command exists
   if (!commands.exists(c.command)) {
@@ -65,7 +65,7 @@ client.on('message', (msg)=>{
   }
 
   // It does. Get the command object for further user
-  var cmnd = commands[c.command];
+  let cmnd = commands[c.command];
 
   // Now check if the parameters needed are supplied
   if (c.params.length < cmnd.argc) {
@@ -78,7 +78,7 @@ client.on('message', (msg)=>{
   }
 
   // There are enough arguments. Check if their type is correct
-  for (var i = 0; i < cmnd.argt.length; i++) {
+  for (let i = 0; i < cmnd.argt.length; i++) {
     if (c.params[i] && !util.checkType(c.params[i], cmnd.argt[i])) {
       // The type is incorrect
       msg.reply('Invalid parameters where passed to `' + config.prefix + c.command +

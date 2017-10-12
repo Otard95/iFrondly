@@ -23,7 +23,7 @@ module.exports = class {
 
   formatMsg (input) {
     input = input.substr(1);
-    var parts = input.split(' ');
+    let parts = input.split(' ');
     return {
       command: parts[0].toLowerCase(),
       params: parts.slice(1)
