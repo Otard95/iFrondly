@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+/*jshint node: true */
 
 let util   = require('../utils.js');
 const Song = require('../classes/Song_class.js');

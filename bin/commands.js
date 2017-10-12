@@ -12,6 +12,7 @@ module.exports = class {
   }
 
   add (name, func, argCount, argTypes, description) {
+    name = name.toLowerCase();
     if (this.exists(name)) throw 'Command all ready added.';
     this[name] = {
       run: func,
