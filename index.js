@@ -3,7 +3,7 @@
 /*
   Config setup
 */
-var config = require('./config.json');
+var config = require('./bin/config.json');
 
 /*
   Package imports
@@ -12,7 +12,7 @@ const Discord     = require('discord.js');
 const yt          = require('ytdl-core');
 const App         = require('./classes/app_class.js');
 const MusicPlayer = require('./classes/musicPlayer_class');
-const util        = require('./utils.js');
+const util        = require('./bin/utils.js');
 
 /*
   Setup Client and App object
@@ -23,7 +23,7 @@ var app = new App(client, yt, config);
 /*
   Setup Commands
 */
-var Commands = require('./commands.js');
+var Commands = require('./bin/commands.js');
 var commands = new Commands();
 var basic_commands =
       require('./command_modules/cm_basic.js')(commands);
