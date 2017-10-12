@@ -10,12 +10,11 @@ module.exports = function (commands, app) {
   mod.init = () => {
     commands.add('newPlaylist', (msg, params) => {
 
-      
 
-    }, 1, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
+
+    }, 1, ['string'], 'newplaylist  -- Creates a new playlist with the name specified.\n' +
                       '             Example:\n' +
-                      '              > !play // plays the current song or the next from queue\n' +
-                      '              > !play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link');
+                      '              > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'\n');
 
     return mod;
   };
