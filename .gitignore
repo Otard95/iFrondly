@@ -57,6 +57,8 @@ typings/
 .env
 
 # My Excludes
+.tern-project
+
 !node_modules/
 
 node_modules/*
