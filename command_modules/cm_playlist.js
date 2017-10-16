@@ -25,7 +25,32 @@ module.exports = function (commands, app) {
 
       return new Promise((resolve, reject) => {
 
+        app.db.execute('createTable', 'playlists', params[0])
+          .then((res) => {
 
+            msg.reply('I creted you new playlist \''+params[0]+'\'.'+
+                      ' Use `'+app.config.prefix+'playlistAdd` to add '+
+                      'songs to this playlist');
+            resolve('Playlist create - Created \''+params[0]+'\'');
+
+          }).catch((err) => {
+
+            if (err.statusCode == app.db.U_TABLE_ALLREADY_EXISTS) {
+              // playlist allready exists
+              msg.reply('This playlist allready exists. You can add songs to '+
+                        'this playlit using `'+app.config.prefix+'playlistAdd`.');
+              reject('Playlist create - Failed, playlist allready exists.');
+            } else if(err.statusCode == app.db.U_DATABASE_NOT_FOUND) {
+              // internal error database not found
+              msg.reply('I ran into some problems. Pleace contact my creator.');
+              reject('Playlist create - Failed database nor found:\n'+err.message);
+            } else {
+              //unknown error
+              msg.reply('I ran into some problems. Pleace contact my creator.');
+              reject('Playlist create - Failed unknown error:\n'+err.message);
+            }
+            
+          });
 
       });
 
