@@ -49,14 +49,26 @@ module.exports = function (commands, app) {
               msg.reply('I ran into some problems. Pleace contact my creator.');
               reject('Playlist create - Failed unknown error:\n'+err.message);
             }
-            
+
           });
 
       });
 
-    }, 1, ['string'], 'newplaylist  -- Creates a new playlist with the name specified.\n' +
-                      '             Example:\n' +
-                      '              > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'\n');
+    }, 1, ['string'], 'newplaylist -- Creates a new playlist with the name specified.\n' +
+                      '                   Example:\n' +
+                      '                    > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
+
+    commands.add('playlistAdd', (msg, params) => {
+
+      return new Promise((resolve, reject) => {
+
+        
+
+      });
+
+    }, 2, ['string', 'string'], 'playlistadd -- Adds a song to the specified playlist.\n'+
+                                '                   Example:\n'+
+                                '                    > !playlistadd playlist_name <youtube url> // adds the song tring the link to the playlist.');
 
 
     console.log('Done!');
