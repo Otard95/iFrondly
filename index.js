@@ -34,10 +34,13 @@ let channelControll_connamds =
       require('./command_modules/cm_channelControll.js')(commands, app);
 let music_commands =
       require('./command_modules/cm_music.js')(commands, app);
+let playlist_commands =
+      require('./command_modules/cm_playlist')(commands, app);
 
 basic_commands.init();
 channelControll_connamds.init();
 music_commands.init();
+playlist_commands.init();
 
 /*
   Setup events

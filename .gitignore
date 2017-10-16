@@ -57,7 +57,9 @@ typings/
 .env
 
 # My Excludes
+
 .tern-project
+sJSON_DB/
 
 !node_modules/
 
