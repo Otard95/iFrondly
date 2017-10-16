@@ -5,6 +5,8 @@ const Song = require('../classes/Song_class.js');
 
 module.exports = function (commands, app) {
 
+  console.log('Loading command module: Playlist...');
+
   let mod = {};
 
   mod.init = () => {
@@ -16,6 +18,10 @@ module.exports = function (commands, app) {
                       '             Example:\n' +
                       '              > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'\n');
 
-    return mod;
+
+    console.log('Done!');
+
   };
+
+  return mod;
 };

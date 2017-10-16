@@ -6,6 +6,8 @@ const Song = require('../classes/Song_class.js');
 
 module.exports = function (commands, app) {
 
+  console.log('Loading command module: Music...');
+
   let mod = {};
 
   mod.init = () => {
@@ -222,6 +224,9 @@ module.exports = function (commands, app) {
                       '             Example:\n'+
                       '              > !skip // skips the current song\n'+
                       '              > !skip 3 // skips the current and the next two songs');
+
+
+    console.log('Done!');
   };
 
   return mod;

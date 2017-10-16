@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 
-module.exports = function (commands, app){
+module.exports = function (commands, app) {
+
+  console.log('Loading command module: Channel Controll...');
 
   let mod = {};
 
@@ -78,6 +80,9 @@ module.exports = function (commands, app){
       });
 
     }, 0, [], 'leave -- Leaves the current voice channel if any.');
+
+
+    console.log('Done!');
   };
 
   return mod;

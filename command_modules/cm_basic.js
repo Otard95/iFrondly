@@ -2,6 +2,8 @@
 
 module.exports = function (commands) {
 
+  console.log('Loading command module: Basic...');
+
   let mod = {};
 
   mod.init = () => {
@@ -45,6 +47,9 @@ module.exports = function (commands) {
                       '        You can also get help on a specific command like this "!help <command name here>"\n'+
                       '            Example:\n'+
                       '             > !help ping');
+
+
+    console.log('Done!');
   };
 
   return mod;
