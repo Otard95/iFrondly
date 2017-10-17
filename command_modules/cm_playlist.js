@@ -58,11 +58,69 @@ module.exports = function (commands, app) {
                       '                   Example:\n' +
                       '                    > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
+
     commands.add('playlistAdd', (msg, params) => {
 
       return new Promise((resolve, reject) => {
 
-        
+        let songs = []; // objects of class Song
+        // list of links provided from user
+        let songLinks = params.slice(1, params.length);
+        let promises = [];
+        let failed = [];
+
+        function getSongInfo(url) {
+          return new Promise((resolveInner, rejectInner) => {
+            app.yt.getInfo(url, (err, info) => {
+              if (err) {
+                failed.push(url);
+                resolveInner();
+                return;
+              }
+              let s = new Song(url,
+                                  info.title,
+                                  info.length_seconds);
+              songs.push(s);
+              resolveInner();
+            });
+          });
+        }
+
+        for (let i = 0; i < songLinks.length; i++) {
+          promises.push(getSongInfo(songLinks[i]));
+        }
+
+        Promise.all(promises).then((res) => {
+          // insert songs
+          promises = [];
+          for (let i = 0; i < songs.length; i++) {
+            promises.push(app.db.execute('insert',
+                                         'playlists',
+                                         params[0],
+                                         songs[i]));
+          }
+
+          Promise.all(promises).then((res) => {
+            // All good all songs successfully added
+            msg.reply('Add song'+(songs.length > 1 ? 's' : '')+
+                      ' to playlist - Added '+
+                      songs.length+' of '+songLinks.length+
+                      ' song'+(songs.length > 1 ? 's' : '')+
+                      ' to playlist '+params[0]);
+
+            resole('Add song'+(songs.length > 1 ? 's' : '')+
+                    ' to playlist - Added '+
+                    songs.length+' of '+songLinks.length+
+                    ' song'+(songs.length > 1 ? 's' : '')+
+                    ' to playlist '+params[0]);
+
+          }).catch((err) => {
+            // error while trying to insert into db
+
+
+          });
+
+        });
 
       });
 

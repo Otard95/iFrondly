@@ -60,6 +60,8 @@ typings/
 
 .tern-project
 sJSON_DB/
+*.local.*
+_local
 
 !node_modules/
 
