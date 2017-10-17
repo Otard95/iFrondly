@@ -63,6 +63,17 @@ module.exports = function (commands, app) {
 
       return new Promise((resolve, reject) => {
 
+        // check is playlist exists
+        app.db.execute('select', 'playlists', params[0]).catch((err) => {
+          if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+            msg.reply('That playlist doesn\'t exits. '+
+                      'You can create a new playlist using the `'+
+                      app.config.prefix+'newPlaylist` command.');
+            reject('Playlist add - failed, no such playlist');
+            return;
+          }
+        });
+
         let songs = []; // objects of class Song
         // list of links provided from user
         let songLinks = params.slice(1, params.length);
@@ -102,11 +113,10 @@ module.exports = function (commands, app) {
 
           Promise.all(promises).then((res) => {
             // All good all songs successfully added
-            msg.reply('Add song'+(songs.length > 1 ? 's' : '')+
-                      ' to playlist - Added '+
+            msg.reply('Added '+
                       songs.length+' of '+songLinks.length+
                       ' song'+(songs.length > 1 ? 's' : '')+
-                      ' to playlist '+params[0]);
+                      ' to playlist \''+params[0]+'\'');
 
             resole('Add song'+(songs.length > 1 ? 's' : '')+
                     ' to playlist - Added '+
