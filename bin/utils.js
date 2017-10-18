@@ -2,17 +2,9 @@
 
 module.exports = {
   ValidURL: (str) => {
-    let pattern = new RegExp('^(https?:\/\/)?'+ // protocol
-      '((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|'+ // domain name
-      '((\d{1,3}\.){3}\d{1,3}))'+ // OR ip (v4) address
-      '(\:\d+)?(\/[-a-z\d%_.~+]*)*'+ // port and path
-      '(\?[;&a-z\d%_.~+=-]*)?'+ // query string
-      '(\#[-a-z\d_]*)?$','i'); // fragment locater
-    if(!pattern.test(str)) {
-      return false;
-    } else {
-      return true;
-    }
+    let pattern = new RegExp('(((https|http)?)(?=://))' + // protocol
+                              '(www.)?[a-zA-Z]{1,}\.[a-zA-Z]{1,8}');
+    return pattern.test(str);
   },
   checkType: (val, targetType) => {
     switch (targetType) {
