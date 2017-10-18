@@ -1,12 +1,14 @@
 /* jshint esversion: 6 */
 
-module.exports = {
-  ValidURL: (str) => {
+class Util {
+
+  ValidURL(str) {
     let pattern = new RegExp('(((https|http)?)(?=://))' + // protocol
                               '(www.)?[a-zA-Z]{1,}\.[a-zA-Z]{1,8}');
     return pattern.test(str);
-  },
-  checkType: (val, targetType) => {
+  }
+
+  checkType(val, targetType) {
     switch (targetType) {
 
       case 'string':
@@ -23,4 +25,14 @@ module.exports = {
 
     }
   }
-};
+
+  stringTruncate(str, len) {
+    if (str.length <= len) return str;
+    let returnString = str.substr(0, len);
+    returnString += ' ...';
+    return returnString;
+  }
+
+}
+
+module.exports = new util();

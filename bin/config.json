@@ -4,5 +4,6 @@
   "defaultVolume": 0.5,
   "passes": 2,
   "skipPassRatio": 0.4,
-  "skipVoteMsgPrefab": "Vote to skip \"&s;\" is &p; in favour"
+  "skipVoteMsgPrefab": "Vote to skip \"&s;\" is &p; in favour",
+  "songTitleLength": 20
 }
