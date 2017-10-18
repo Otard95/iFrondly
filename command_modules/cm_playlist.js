@@ -236,7 +236,33 @@ module.exports = function (commands, app) {
                       '                     Example:\n'+
                       '                      > !queuePlaylist Gaming');
 
-    //commands.add('');
+
+    commands.add('playlistInfo', (msg, params) => {
+
+      return new Promise((resolve, reject) => {
+
+        app.db.execute('select', 'playlists', params[0])
+          .then((res) => {
+
+            // Generate reply string from table contents
+            let PLInfo = params[0] + ':\n';
+            for (let i = 0; i < res.res.length; i++) {
+              PLInfo += '  - ' + res.res[i].name;
+            }
+
+            mag.channel.send(PLInfo);
+            resolve('Playlist info - info sendt');
+
+          }).catch((err) => {
+
+            msg.reply('There is no playlist by that name');
+            reject('Playlist info - no such playlist');
+
+          });
+
+      });
+
+    }, 1, ['string'], 'playlistInfo -- Lists all songs in the playlist');
 
 
     console.log('Done!');
