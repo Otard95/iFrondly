@@ -2,6 +2,7 @@
 /*jshint node: true */
 
 const Song = require('../classes/Song_class.js');
+const util = require('../bin/utils.js');
 
 module.exports = function (commands, app) {
 
@@ -54,7 +55,7 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 1, ['string'], 'newplaylist -- Creates a new playlist with the name specified.\n' +
+    }, 1, ['string'], 'newPlaylist -- Creates a new playlist with the name specified.\n' +
                       '                   Example:\n' +
                       '                    > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
@@ -180,9 +181,55 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 2, ['string', 'string'], 'playlistadd -- Adds a song to the specified playlist.\n'+
+    }, 2, ['string', 'string'], 'playlistAdd -- Adds a song to the specified playlist.\n'+
                                 '                   Example:\n'+
-                                '                    > !playlistadd playlist_name <youtube url> // adds the song tring the link to the playlist.');
+                                '                    > !playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
+
+    commands.add('queuePlaylist', (msg, params) => {
+
+      return new Promise((resolve, reject) => {
+
+        let songs;
+        // check is playlist exists and get songs
+        app.db.execute('select', 'playlists', params[0])
+          .then((res) => {
+            if (res.statusCode == app.db.codes.NONE_FOUND) {
+              msg.reply('This playlist is empty. Add some songs to it using `'+
+                         app.config.prefix+'playlistAdd`.');
+              reject('Playlist queue - no songs in playlist');
+              return;
+            }
+            songs = res.res;
+          }).catch((err) => {
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('That playlist doesn\'t exits. '+
+                        'You can create a new playlist using the `'+
+                        app.config.prefix+'newPlaylist` command.');
+              reject('Playlist queue - failed, no such playlist');
+              return;
+            }
+          });
+
+          /* songs from the database don't have a msg attaced whish
+           * is needed for other tasks. so add the current msg to the songs
+           */
+          for (let i = 0; i < songs.length; i++) {
+            songs[i].originalMessage = msg;
+          }
+
+          // now appand the songs to the existing queue
+          app.musicPlayer.queue = app.musicPlayer.queue.concat(songs);
+
+          msg.reply('I queued the songs from the \''+params[0]+'\' playlist.');
+          resolve('Playlist queue - queued playlist \''+params[0]+'\'');
+
+      });
+
+    }, 1, ['string'], 'queuePlaylist -- Use this command to queue all songs from a playlist.\n'+
+                      '                     Example:\n'+
+                      '                      > !queuePlaylist Gaming');
+
+    commands.add('');
 
 
     console.log('Done!');
