@@ -6,8 +6,7 @@ module.exports = class MusicPlayer {
 
   constructor (ytdl, config) {
     this.queue = []; // the array that is the song queue
-    this.playing = false; /* if there is a song playing
-                            (regardless of if a song is paused) */
+    this.playing = false; // if there is a song playing
     this.voiceConnection = undefined; /* the voice connection
                                           to the voice channel */
     this.yt = ytdl; // ytdl-core
