@@ -154,13 +154,13 @@ module.exports = function (commands, app) {
 
             msgDuplicates = '';
             if (duplicates.length > 1) {
-              msgDuplicates = 'These songs are allready in the playlist:\n';
+              msgDuplicates = 'These songs are already in the playlist:\n';
               for (let i = 0; i < duplicates.length; i++) {
                 msgDuplicates += '  - ' + duplicates[i];
               }
             } else if (duplicates.length == 1) {
               msgDuplicates = '\''+duplicates[0] +
-                              '\' is allready in the playlist';
+                              '\' is already in the playlist';
             }
 
             let reply = 'Added ';
