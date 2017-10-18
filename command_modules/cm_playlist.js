@@ -245,18 +245,23 @@ module.exports = function (commands, app) {
           .then((res) => {
 
             // Generate reply string from table contents
-            let PLInfo = params[0] + ':\n';
+            let PLInfo = 'Songs in \'' + params[0] + '\' playlist:';
             for (let i = 0; i < res.res.length; i++) {
-              PLInfo += '  - ' + res.res[i].name;
+              PLInfo += '\n  - ' + res.res[i].name;
             }
 
-            mag.channel.send(PLInfo);
+            msg.channel.send(PLInfo);
             resolve('Playlist info - info sendt');
 
           }).catch((err) => {
 
-            msg.reply('There is no playlist by that name');
-            reject('Playlist info - no such playlist');
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('There is no playlist by that name');
+              reject('Playlist info - no such playlist');
+            } else {
+              msg.reply('I ran into some problems.');
+              reject(err);
+            }
 
           });
 
