@@ -107,7 +107,7 @@ module.exports = function (commands, app) {
             app.db.execute('insert',
                            'playlists',
                            params[0],
-                           songs[i])
+                           song)
               .then((res) => {
                 inserted++;
                 resolveInner();
@@ -159,24 +159,31 @@ module.exports = function (commands, app) {
                 msgDuplicates += '  - ' + duplicates[i];
               }
             } else if (duplicates.length == 1) {
-              msgDuplicates = duplicates[0] + ' is allready in the playlist';
+              msgDuplicates = '\''+duplicates[0] +
+                              '\' is allready in the playlist';
             }
 
-            msg.reply('Added '+
-                      inserted+' of '+songLinks.length+
-                      ' song'+(songLinks.length > 1 ? 's' : '')+
-                      ' to playlist \''+params[0]+'\''+
-                      failed.length     > 0 ? '\n' + msgFailed : ''+
-                      duplicates.length > 0 ? '\n' + msgDuplicates : '');
+            let reply = 'Added ';
+            reply    += inserted+' of '+songLinks.length;
+            reply    += ' song'+(songLinks.length > 1 ? 's' : '');
+            reply    += ' to playlist \''+params[0]+'\'';
+            if (failed.length > 0)     reply += '\n' + msgFailed;
+            if (duplicates.length > 0) reply +=  '\n' + msgDuplicates;
+            console.log(reply);
+            msg.reply(reply);
 
-            resole('Add song'+(inserted > 1 ? 's' : '')+
+            resolve('Add song'+(inserted > 1 ? 's' : '')+
                     ' to playlist - Added '+
-                    songs.length+' of '+songLinks.length+
+                    inserted+' of '+songLinks.length+
                     ' song'+(songLinks.length > 1 ? 's' : '')+
                     ' to playlist '+params[0]);
 
+          }).catch((err) => {
+            console.log(err);
           });
 
+        }).catch((err) => {
+          console.log(err);
         });
 
       });
@@ -229,7 +236,7 @@ module.exports = function (commands, app) {
                       '                     Example:\n'+
                       '                      > !queuePlaylist Gaming');
 
-    commands.add('');
+    //commands.add('');
 
 
     console.log('Done!');
