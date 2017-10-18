@@ -42,6 +42,7 @@ module.exports = class MusicPlayer {
 
 		this.voiceConnection.dispatcher.on('end', () => {
       this.skipVote = undefined;
+      if (!this.currentlyPlaying) return; // if leaving 
       if (this.queue.length == 0) {
         this.currentlyPlaying.originalMessage
           .channel.send('That was the last one, show\'s over.');
