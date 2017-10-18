@@ -47,7 +47,7 @@ module.exports = function (commands, app) {
         if (params[0]) {
 
           // check for if param is link or playlist
-          if (app.yt.validateURL(params)) {
+          if (app.yt.validateURL(params[0])) {
 
             console.log('Play - adding song to queue');
 
@@ -73,7 +73,13 @@ module.exports = function (commands, app) {
             return app.db.execute('select', 'playlists', params[0])
               .then((res) => {
 
-                app.musicPlayer.queue = res.res;
+                let songs = res.res;
+                for (let i = 0; i < songs.length; i++) {
+                  songs[i].originalMessage = msg;
+                }
+
+                app.musicPlayer.queue = songs;
+
                 console.log('Play - playlist queued\n'+
                             '       retrying play');
                 commands.play.run(msg, []).then((res) => {
@@ -130,9 +136,11 @@ module.exports = function (commands, app) {
       });
 
     }, 0, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
+                      '         You may also specify a playlist intead\n'+
                       '             Example:\n' +
                       '              > !play // plays the current song or the next from queue\n' +
-                      '              > !play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link');
+                      '              > !play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link'+
+                      '              > !play Gaming // plays all songs from the playlist \'Gaming\'');
 
     commands.add('pause', (msg, params) => {
 
