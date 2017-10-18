@@ -46,27 +46,58 @@ module.exports = function (commands, app) {
         // if link is specified add to queue
         if (params[0]) {
 
-          console.log('Play - adding song to queue');
+          // check for if param is link or playlist
+          if (app.yt.validateURL(params)) {
 
-          return commands.queue.run(msg, params).then((res) => {
-            console.log('Play - retrying play');
-            // success! retry play
-            commands.play.run(msg, []).then((res) => {
-              // success! resolve play
-              resolve(res);
-              return;
+            console.log('Play - adding song to queue');
+
+            return commands.queue.run(msg, params).then((res) => {
+              console.log('Play - retrying play');
+              // success! retry play
+              commands.play.run(msg, []).then((res) => {
+                // success! resolve play
+                resolve(res);
+              }).catch((err) => {
+                //fail, reject play
+                reject(err);
+              });
             }).catch((err) => {
-              //fail, reject play
-              reject(err);
+              // failed to queue
+              reject('Failed to play - ' + err);
               return;
             });
-          }).catch((err) => {
-            // failed to queue
-            msg.reply('I could not find that youtube video.'+
-                      ' Make sure its the correct lik.');
-            reject('Failed to play - ' + err);
-            return;
-          });
+
+          } else { // try to find playlist
+
+            console.log('Play - trying to queue playlist...');
+            return app.db.execute('select', 'playlists', params[0])
+              .then((res) => {
+
+                app.musicPlayer.queue = res.res;
+                console.log('Play - playlist queued\n'+
+                            '       retrying play');
+                commands.play.run(msg, []).then((res) => {
+                  // success! resolve play
+                  resolve(res);
+                }).catch((err) => {
+                  //fail, reject play
+                  reject(err);
+                });
+
+              }).catch((err) => {
+                if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+                  msg.reply('This playlist doesn\'t exist.');
+                  reject('Play - playlist doesn\'t exits.');
+                  return;
+                }
+                msg.channel.send('I ran into some problems. '+
+                                 'Im unable to play that playlist.');
+                reject('Play - err on playlist:\n'+err.message);
+                return;
+              });
+
+          }
+
 
         } // END IF
 
@@ -83,8 +114,10 @@ module.exports = function (commands, app) {
         // if the queue is empty reject
         if (app.musicPlayer.queue.length == 0) {
           msg.reply('The queue is empty. Add some songs to it using '+
-                    '`!queue`. You can also try `!play <youtube link>`, '+
-                    'or see `!help` for more info');
+                    '`'+app.config.prefix+'queue`. '+
+                    'You can also try `'+
+                    app.config.prefix+'play <youtube link>`, '+
+                    'or see `'+app.config.prefix+'help` for more info');
           reject('Failed to play - no songs in queue');
           return;
         }
@@ -127,8 +160,8 @@ module.exports = function (commands, app) {
 
     			if(err) {
             reject('ytdl err on .getInfo() -- ' + err);
-            msg.channel.send("I'm not feeling to good :/ -- " +
-                             "(**An unexpected error occurred!**)");
+            msg.channel.send("I cound not resolve that link. "+
+                             "Make sure its correct.");
             return;
            }
     			app.musicPlayer.queue.push(new Song (params[0],
