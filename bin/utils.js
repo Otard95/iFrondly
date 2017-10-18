@@ -10,7 +10,6 @@ module.exports = {
     switch (targetType) {
 
       case 'string':
-        console.log(typeof val == targetType, typeof val, targetType);
         return (typeof val == targetType);
 
       case 'number':
@@ -20,7 +19,6 @@ module.exports = {
         return false;
 
       default:
-        console.log('type check defaulted');
         return false;
 
     }
