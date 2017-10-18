@@ -77,8 +77,12 @@ module.exports = function (commands, app) {
         let songs = []; // objects of class Song
         // list of links provided from user
         let songLinks = params.slice(1, params.length);
-        let promises = [];
-        let failed = [];
+        let promises = []; // pending promises
+        let failed = []; // the urls ov the songs that could not be added
+        let duplicates = []; // list of names that are duplicates of
+                            // existing songs in the database
+        let inserted = 0; // couter for the number of songs that
+                          // successfully was added to the database
 
         function getSongInfo(url) {
           return new Promise((resolveInner, rejectInner) => {
@@ -89,11 +93,31 @@ module.exports = function (commands, app) {
                 return;
               }
               let s = new Song(url,
-                                  info.title,
-                                  info.length_seconds);
+                               info.title,
+                               info.length_seconds);
               songs.push(s);
               resolveInner();
             });
+          });
+        }
+
+        function insertSong(song) {
+          return new Promise((resolveInner, rejectInner) => {
+            app.db.execute('insert',
+                           'playlists',
+                           params[0],
+                           songs[i])
+              .then((res) => {
+                inserted++;
+                resolveInner();
+              }).catch((err) => {
+                if (err.statusCode == app.db.codes.U_ROW_DUPLICATE) {
+                  duplicates.push(song.name);
+                } else {
+                  failed.push(song.url);
+                }
+                resolveInner();
+              });
           });
         }
 
@@ -102,31 +126,53 @@ module.exports = function (commands, app) {
         }
 
         Promise.all(promises).then((res) => {
+
+          // add a equals methud to the song object
+          for (let i = 0; i < songs.length; i++) {
+            songs[i].equals = (obj1, obj2) => obj1.url == obj2.url;
+          }
+
           // insert songs
           promises = [];
           for (let i = 0; i < songs.length; i++) {
-            promises.push(app.db.execute('insert',
-                                         'playlists',
-                                         params[0],
-                                         songs[i]));
+            promises.push(insertSong(songs[i]));
           }
 
           Promise.all(promises).then((res) => {
-            // All good all songs successfully added
-            msg.reply('Added '+
-                      songs.length+' of '+songLinks.length+
-                      ' song'+(songs.length > 1 ? 's' : '')+
-                      ' to playlist \''+params[0]+'\'');
+            // if any song could not be added,
+            // generate a message to tell the user
+            let msgFailed = 'I was unable to add '+
+            failed.length > 1 ? 'these':'this'+
+            'song'+failed.length > 1 ? 's:\n  - ':'';
 
-            resole('Add song'+(songs.length > 1 ? 's' : '')+
+            for (let i = 0; i < failed.length; i++) {
+              msgFailed += failed[i] + '\n  - ';
+            }
+
+            msgFailed = msgFailed.substr(0,msgFailed.length-4);
+
+            msgDuplicates = '';
+            if (duplicates.length > 1) {
+              msgDuplicates = 'These songs are allready in the playlist:\n';
+              for (let i = 0; i < duplicates.length; i++) {
+                msgDuplicates += '  - ' + duplicates[i];
+              }
+            } else if (duplicates.length == 1) {
+              msgDuplicates = duplicates[0] + ' is allready in the playlist';
+            }
+
+            msg.reply('Added '+
+                      inserted+' of '+songLinks.length+
+                      ' song'+(songLinks.length > 1 ? 's' : '')+
+                      ' to playlist \''+params[0]+'\''+
+                      failed.length     > 0 ? '\n' + msgFailed : ''+
+                      duplicates.length > 0 ? '\n' + msgDuplicates : '');
+
+            resole('Add song'+(inserted > 1 ? 's' : '')+
                     ' to playlist - Added '+
                     songs.length+' of '+songLinks.length+
-                    ' song'+(songs.length > 1 ? 's' : '')+
+                    ' song'+(songLinks.length > 1 ? 's' : '')+
                     ' to playlist '+params[0]);
-
-          }).catch((err) => {
-            // error while trying to insert into db
-
 
           });
 
