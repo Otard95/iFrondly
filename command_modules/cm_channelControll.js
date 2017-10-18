@@ -73,6 +73,7 @@ module.exports = function (commands, app) {
 
         // leave the channel
         let tempName = app.voiceChannel.name;
+        add.musicPlayer.stop();
         app.voiceChannel.leave();
         app.voiceChannel = undefined;
         resolve("Left channel '" + tempName + "'");
