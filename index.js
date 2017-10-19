@@ -108,10 +108,20 @@ client.login(config.botToken);
   Whaen bot exits do final cleanup
 */
 
-process.on('SIGINT', ()=>{
-    console.log('\nGoodbye o/\n');
-    app.cleanup();
-    client.user.setStatus("invisible");
-    client.destroy();
-    process.exit(0);
-});
+let cleanupDone = false;
+
+process.stdin.resume();
+
+process.on('exit', cleanup);
+
+process.on('SIGINT', cleanup);
+
+cleanup = function() {
+  if (cleanupDone) return;
+  cleanupDone = true;
+  console.log('\nGoodbye o/\n');
+  app.cleanup();
+  client.user.setStatus("invisible");
+  client.destroy();
+  process.exit(0);
+};
