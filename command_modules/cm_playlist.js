@@ -29,7 +29,7 @@ module.exports = function (commands, app) {
         app.db.execute('createTable', 'playlists', params[0])
           .then((res) => {
 
-            msg.reply('I creted you new playlist \''+params[0]+'\'.'+
+            msg.reply('I creted your new playlist \''+params[0]+'\'.'+
                       ' Use `'+app.config.prefix+'playlistAdd` to add '+
                       'songs to this playlist');
             resolve('Playlist create - Created \''+params[0]+'\'');
@@ -143,20 +143,20 @@ module.exports = function (commands, app) {
             // if any song could not be added,
             // generate a message to tell the user
             let msgFailed = 'I was unable to add '+
-            failed.length > 1 ? 'these':'this'+
-            'song'+failed.length > 1 ? 's:\n  - ':'';
+            (failed.length > 1 ? 'these':'this')+
+            ' song '+(failed.length > 1 ? 's:\n  - ':'');
 
             for (let i = 0; i < failed.length; i++) {
               msgFailed += failed[i] + '\n  - ';
             }
 
-            msgFailed = msgFailed.substr(0,msgFailed.length-4);
+            msgFailed = msgFailed.substr(0,msgFailed.length-5);
 
             msgDuplicates = '';
             if (duplicates.length > 1) {
-              msgDuplicates = 'These songs are already in the playlist:\n';
+              msgDuplicates = 'These songs are already in the playlist:';
               for (let i = 0; i < duplicates.length; i++) {
-                msgDuplicates += '  - ' + duplicates[i];
+                msgDuplicates += '\n  - ' + duplicates[i];
               }
             } else if (duplicates.length == 1) {
               msgDuplicates = '\''+duplicates[0] +
