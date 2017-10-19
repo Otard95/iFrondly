@@ -95,7 +95,8 @@ module.exports = function (commands, app) {
               }
               let s = new Song(url,
                                info.title,
-                               info.length_seconds);
+                               info.length_seconds,
+                               info.video_id);
               songs.push(s);
               resolveInner();
             });
@@ -128,9 +129,9 @@ module.exports = function (commands, app) {
 
         Promise.all(promises).then((res) => {
 
-          // add a equals methud to the song object
+          // add a equals methud to the song objects
           for (let i = 0; i < songs.length; i++) {
-            songs[i].equals = (obj1, obj2) => obj1.url == obj2.url;
+            songs[i].equals = (obj1, obj2) => obj1.vidID == obj2.vidID;
           }
 
           // insert songs
