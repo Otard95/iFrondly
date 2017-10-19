@@ -13,7 +13,7 @@ const yt          = require('ytdl-core');
 const App         = require('./classes/app_class.js');
 const MusicPlayer = require('./classes/musicPlayer_class');
 const util        = require('./bin/utils.js');
-const db          = require('simple_json_database')('sJSON_DB');
+const db          = require('simple_json_database')('sJSON_DB', config.DBSaveFormated);
 
 /*
   Setup Client, App and Database object
