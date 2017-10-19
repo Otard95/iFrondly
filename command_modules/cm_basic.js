@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-module.exports = function (commands) {
+module.exports = function (commands, app) {
 
   console.log('Loading command module: Basic...');
 
