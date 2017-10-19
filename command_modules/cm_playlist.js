@@ -153,7 +153,7 @@ module.exports = function (commands, app) {
             // generate a message to tell the user
             let msgFailed = 'I was unable to add '+
             (failed.length > 1 ? 'these':'this')+
-            ' song'+(failed.length > 1 ? 's:\n  - ':'');
+            ' song'+(failed.length > 1 ? 's:\n  - ':' ');
 
             for (let i = 0; i < failed.length; i++) {
               msgFailed += failed[i] + '\n  - ';
