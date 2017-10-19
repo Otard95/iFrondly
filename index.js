@@ -27,7 +27,7 @@ let app       = new App(client, yt, config, db);
 let Commands = require('./bin/commands.js');
 let commands = new Commands();
 let basic_commands =
-      require('./command_modules/cm_basic.js')(commands);
+      require('./command_modules/cm_basic.js')(commands, app);
 let channelControll_connamds =
       require('./command_modules/cm_channelControll.js')(commands, app);
 let music_commands =
@@ -110,13 +110,7 @@ client.login(config.botToken);
 
 let cleanupDone = false;
 
-process.stdin.resume();
-
-process.on('exit', cleanup);
-
-process.on('SIGINT', cleanup);
-
-cleanup = function() {
+let cleanup = function() {
   if (cleanupDone) return;
   cleanupDone = true;
   console.log('\nGoodbye o/\n');
@@ -125,3 +119,9 @@ cleanup = function() {
   client.destroy();
   process.exit(0);
 };
+
+process.stdin.resume();
+
+process.on('exit', cleanup);
+
+process.on('SIGINT', cleanup);
