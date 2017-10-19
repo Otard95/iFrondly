@@ -60,20 +60,28 @@ module.exports = function (commands, app) {
                       '                    > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
 
-    commands.add('playlistAdd', (msg, params) => {
+    commands.add('playlistAdd', (msg, params, internalChecks) => {
 
       return new Promise((resolve, reject) => {
 
-        // check is playlist exists
-        app.db.execute('select', 'playlists', params[0]).catch((err) => {
-          if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
-            msg.reply('That playlist doesn\'t exits. '+
-                      'You can create a new playlist using the `'+
-                      app.config.prefix+'newPlaylist` command.');
-            reject('Playlist add - failed, no such playlist');
-            return;
-          }
-        });
+
+        if (!internalChecks){// check is playlist exists
+          app.db.execute('select', 'playlists', params[0])
+          .then((res) => {
+            commands.playlistadd.run(msg, params, true)
+              .then ( res=>resolve(res) )
+              .catch( err=>reject (err) );
+          }).catch((err) => {
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('That playlist doesn\'t exits. '+
+                        'You can create a new playlist using the `'+
+                        app.config.prefix+'newPlaylist` command.');
+              reject('Playlist add - failed, no such playlist');
+              tableEx = false;
+            }
+          });
+          return;
+        }
 
         let songs = []; // objects of class Song
         // list of links provided from user
@@ -145,7 +153,7 @@ module.exports = function (commands, app) {
             // generate a message to tell the user
             let msgFailed = 'I was unable to add '+
             (failed.length > 1 ? 'these':'this')+
-            ' song '+(failed.length > 1 ? 's:\n  - ':'');
+            ' song'+(failed.length > 1 ? 's:\n  - ':'');
 
             for (let i = 0; i < failed.length; i++) {
               msgFailed += failed[i] + '\n  - ';
@@ -170,7 +178,6 @@ module.exports = function (commands, app) {
             reply    += ' to playlist \''+params[0]+'\'';
             if (failed.length > 0)     reply += '\n' + msgFailed;
             if (duplicates.length > 0) reply +=  '\n' + msgDuplicates;
-            console.log(reply);
             msg.reply(reply);
 
             resolve('Add song'+(inserted > 1 ? 's' : '')+
@@ -277,28 +284,29 @@ module.exports = function (commands, app) {
 
         app.db.execute('delete', 'playlists', params[0], (el, i) => {
           for (let index = 1; index < params.length; index++) {
-            return i == (parseInt(params[index]) - 1);
+            if (i == (parseInt(params[index]) - 1)) return true;
           }
+          return false;
         }).then((res) => {
 
           if (res.statusCode == app.db.codes.NONE_FOUND) {
-            msg.replay('I couldn\'t find '+
+            msg.reply('I couldn\'t find '+
                        params.length > 2 ? 'any of these songs.' : 'that song.');
             reject('Playlist remove - NONE_FOUND');
           } else {
-            msg.replay('Removed '+
-                       res.res.length==(params.length-1)?'all':res.res.length+
+            msg.reply('Removed '+
+                       (res.res.length==(params.length-1)?'all':res.res.length)+
                        ' of the '+
-                       (params.length-1)+'song'+params.length>2?'s':''+
+                       (params.length-1)+' song'+(params.length>2?'s':'')+
                        ' you specified.');
           }
 
         }).catch((err) => {
           if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
-            msg.replay('\''+params[0]+'\' is not a playlist');
+            msg.reply('\''+params[0]+'\' is not a playlist');
             reject('Playlist remove - no such playlist');
           } else {
-            msg.replay('I hit a snag. Lets give it one more shot.');
+            msg.reply('I hit a snag. Lets give it one more shot.');
             reject('Playlist remove - error:\n'+err.message);
           }
         });
