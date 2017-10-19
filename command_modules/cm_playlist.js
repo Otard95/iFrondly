@@ -247,7 +247,7 @@ module.exports = function (commands, app) {
             // Generate reply string from table contents
             let PLInfo = 'Songs in \'' + params[0] + '\' playlist:';
             for (let i = 0; i < res.res.length; i++) {
-              PLInfo += '\n  - ' + res.res[i].name;
+              PLInfo += '\n '+(i+1)+'. ' + res.res[i].name;
             }
 
             msg.channel.send(PLInfo);
@@ -269,6 +269,46 @@ module.exports = function (commands, app) {
 
     }, 1, ['string'], 'playlistInfo -- Lists all songs in the playlist');
 
+
+    commands.add('playlistRemove', (msg, params) => {
+
+      return new Promise((resolve, reject) => {
+
+        app.db.execute('delete', 'playlists', params[0], (el, i) => {
+          for (let index = 1; index < params.length; index++) {
+            return i == (parseInt(params[index]) - 1);
+          }
+        }).then((res) => {
+
+          if (res.statusCode == app.db.codes.NONE_FOUND) {
+            msg.replay('I couldn\'t find '+
+                       params.length > 2 ? 'any of these songs.' : 'that song.');
+            reject('Playlist remove - NONE_FOUND');
+          } else {
+            msg.replay('Removed '+
+                       res.res.length==(params.length-1)?'all':res.res.length+
+                       ' of the '+
+                       (params.length-1)+'song'+params.length>2?'s':''+
+                       ' you specified.');
+          }
+
+        }).catch((err) => {
+          if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+            msg.replay('\''+params[0]+'\' is not a playlist');
+            reject('Playlist remove - no such playlist');
+          } else {
+            msg.replay('I hit a snag. Lets give it one more shot.');
+            reject('Playlist remove - error:\n'+err.message);
+          }
+        });
+
+      });
+
+    }, 2, ['string', 'number'], 'playlistRemove -- Deletes a song from a playlist based on its index.\n'+
+                                '                  See `'+app.config.prefix+'playlistInfo`, you can refer to the\n'+
+                                '                  `'+app.config.prefix+'help` connamd if you want more information.\n'+
+                                '                      Example:\n'+
+                                '                       > !playlistRemove Gaming 3 // deletes the third song in the playlist');
 
     console.log('Done!');
 
