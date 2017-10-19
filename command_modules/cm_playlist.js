@@ -57,7 +57,7 @@ module.exports = function (commands, app) {
 
     }, 1, ['string'], 'newPlaylist -- Creates a new playlist with the name specified.\n' +
                       '                   Example:\n' +
-                      '                    > !newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
+                      '                    > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
 
     commands.add('playlistAdd', (msg, params) => {
@@ -191,7 +191,7 @@ module.exports = function (commands, app) {
 
     }, 2, ['string', 'string'], 'playlistAdd -- Adds a song to the specified playlist.\n'+
                                 '                   Example:\n'+
-                                '                    > !playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
+                                '                    > '+app.config.prefix+'playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
 
     commands.add('queuePlaylist', (msg, params) => {
 
@@ -235,7 +235,7 @@ module.exports = function (commands, app) {
 
     }, 1, ['string'], 'queuePlaylist -- Use this command to queue all songs from a playlist.\n'+
                       '                     Example:\n'+
-                      '                      > !queuePlaylist Gaming');
+                      '                      > '+app.config.prefix+'queuePlaylist Gaming');
 
 
     commands.add('playlistInfo', (msg, params) => {
@@ -309,7 +309,7 @@ module.exports = function (commands, app) {
                                 '                  See `'+app.config.prefix+'playlistInfo`, you can refer to the\n'+
                                 '                  `'+app.config.prefix+'help` connamd if you want more information.\n'+
                                 '                      Example:\n'+
-                                '                       > !playlistRemove Gaming 3 // deletes the third song in the playlist');
+                                '                       > '+app.config.prefix+'playlistRemove Gaming 3 // deletes the third song in the playlist');
 
     console.log('Done!');
 

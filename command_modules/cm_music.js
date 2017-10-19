@@ -17,7 +17,7 @@ module.exports = function (commands, app) {
 
         // if allready playing, reject
         if (app.musicPlayer.playing) {
-          msg.reply('I\'m allready playing. Use `!queue` to add a song to the queue.');
+          msg.reply('I\'m allready playing. Use `'+app.config.prefix+'queue` to add a song to the queue.');
           reject('Failed to play - Allready playing');
           return;
         }
@@ -138,9 +138,9 @@ module.exports = function (commands, app) {
     }, 0, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
                       '         You may also specify a playlist intead\n'+
                       '             Example:\n' +
-                      '              > !play // plays the current song or the next from queue\n' +
-                      '              > !play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link'+
-                      '              > !play Gaming // plays all songs from the playlist \'Gaming\'');
+                      '              > '+app.config.prefix+'play // plays the current song or the next from queue\n' +
+                      '              > '+app.config.prefix+'play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link'+
+                      '              > '+app.config.prefix+'play Gaming // plays all songs from the playlist \'Gaming\'');
 
     commands.add('pause', (msg, params) => {
 
@@ -185,7 +185,7 @@ module.exports = function (commands, app) {
                       '            !!! Requires 1 parameter\n'+
                       '                - url (youtube link)\n'+
                       '             Example:\n'+
-                      '              > !queue https://www.youtube.com/watch?v=KbNXnxwMOqU // adds the song from the link to the queue');
+                      '              > '+app.config.prefix+'queue https://www.youtube.com/watch?v=KbNXnxwMOqU // adds the song from the link to the queue');
 
     commands.add('skip', (msg, params) => {
 
@@ -243,7 +243,7 @@ module.exports = function (commands, app) {
           }
           // otherwise start vote
           msg.channel.send('A vote to skip this song has been started. '+
-                           'Use `!skip` to vote.')
+                           'Use `'+app.config.prefix+'skip` to vote.')
                       .then((res) => {
                         app.musicPlayer
                           .startVoteSkip( msg.member.id,
@@ -263,8 +263,8 @@ module.exports = function (commands, app) {
 
     }, 0, ['number'], 'skip  -- Skips one or more songs in the queue.\n'+
                       '             Example:\n'+
-                      '              > !skip // skips the current song\n'+
-                      '              > !skip 3 // skips the current and the next two songs');
+                      '              > '+app.config.prefix+'skip // skips the current song\n'+
+                      '              > '+app.config.prefix+'skip 3 // skips the current and the next two songs');
 
 
     console.log('Done!');

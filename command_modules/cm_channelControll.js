@@ -36,7 +36,7 @@ module.exports = function (commands, app) {
             // author is not in a voice channel.
             msg.reply('You need to tell me what channel to join ' +
                       'or join one yourself. If you need help using ' +
-                      'this command you can use `!help join`');
+                      'this command you can use `'+app.config.prefix+'help join`');
             reject('Failed to join voice channel - user not in any channel.');
             return;
           }
@@ -58,8 +58,8 @@ module.exports = function (commands, app) {
 
     }, 0, ['string'], 'join  -- Joins your voice channel or the one specified.\n'+
                       '            Example:\n'+
-                      '             > !join // joins your voice channel\n'+
-                      "             > !join Chill // joins channel named 'Chill'");
+                      '             > '+app.config.prefix+'join // joins your voice channel\n'+
+                      "             > '+app.config.prefix+'join Chill // joins channel named 'Chill'");
 
     commands.add('leave', (msg, params) => {
 

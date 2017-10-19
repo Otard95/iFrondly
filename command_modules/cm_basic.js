@@ -22,7 +22,7 @@ module.exports = function (commands) {
         if (params.length > 0) {
           if (!commands.exists(params[0])) {
             msg.channel.send('`' + app.config.prefix + params[0] +
-                             '` is not a command. Use `!help` ' +
+                             '` is not a command. Use `'+app.config.prefix+'help` ' +
                              'to see available commands.');
             reject('Failed to help - unknown command');
             return;
@@ -44,9 +44,9 @@ module.exports = function (commands) {
       });
 
     }, 0, ['string'], 'help  -- Show this info.\n'+
-                      '        You can also get help on a specific command like this "!help <command name here>"\n'+
+                      '        You can also get help on a specific command like this "'+app.config.prefix+'help <command name here>"\n'+
                       '            Example:\n'+
-                      '             > !help ping');
+                      '             > '+app.config.prefix+'help ping');
 
 
     console.log('Done!');
