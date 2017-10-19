@@ -15,7 +15,7 @@ class Util {
         return (typeof val == targetType);
 
       case 'number':
-        numVal = parseInt(val);
+        let numVal = parseInt(val);
         if (isNaN(numVal)) return false;
         if ('' + numVal == val) return true;
         return false;
