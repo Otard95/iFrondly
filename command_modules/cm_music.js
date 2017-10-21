@@ -135,12 +135,12 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 0, ['string'], 'play  -- Plays music form the queue or the link(youtube) specified.\n' +
-                      '         You may also specify a playlist intead\n'+
-                      '             Example:\n' +
-                      '              > '+app.config.prefix+'play // plays the current song or the next from queue\n' +
-                      '              > '+app.config.prefix+'play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link'+
-                      '              > '+app.config.prefix+'play Gaming // plays all songs from the playlist \'Gaming\'');
+    }, 0, ['string'], 'play           -- Plays music form the queue or the link(youtube) specified.\n' +
+                      '                  You may also specify a playlist intead\n'+
+                      '                      Example:\n' +
+                      '                       > '+app.config.prefix+'play // plays the current song or the next from queue\n' +
+                      '                       > '+app.config.prefix+'play https://www.youtube.com/watch?v=KbNXnxwMOqU // plays the song from the link\n'+
+                      '                       > '+app.config.prefix+'play Gaming // plays all songs from the playlist \'Gaming\'');
 
     commands.add('pause', (msg, params) => {
 
@@ -181,11 +181,11 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 1, ['string'], 'queue -- Adds a song to the queue.\n' +
-                      '            !!! Requires 1 parameter\n'+
-                      '                - url (youtube link)\n'+
-                      '             Example:\n'+
-                      '              > '+app.config.prefix+'queue https://www.youtube.com/watch?v=KbNXnxwMOqU // adds the song from the link to the queue');
+    }, 1, ['string'], 'queue          -- Adds a song to the queue.\n' +
+                      '                  !!! Requires 1 parameter\n'+
+                      '                   - url (youtube link)\n'+
+                      '                      Example:\n'+
+                      '                       > '+app.config.prefix+'queue https://www.youtube.com/watch?v=KbNXnxwMOqU // adds the song from the link to the queue');
 
     commands.add('skip', (msg, params) => {
 
@@ -261,10 +261,10 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 0, ['number'], 'skip  -- Skips one or more songs in the queue.\n'+
-                      '             Example:\n'+
-                      '              > '+app.config.prefix+'skip // skips the current song\n'+
-                      '              > '+app.config.prefix+'skip 3 // skips the current and the next two songs');
+    }, 0, ['number'], 'skip           -- Skips one or more songs in the queue.\n'+
+                      '                      Example:\n'+
+                      '                       > '+app.config.prefix+'skip // skips the current song\n'+
+                      '                       > '+app.config.prefix+'skip 3 // skips the current and the next two songs');
 
 
     console.log('Done!');

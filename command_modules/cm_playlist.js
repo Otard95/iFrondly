@@ -121,9 +121,9 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 1, ['string'], 'newPlaylist -- Creates a new playlist with the name specified.\n' +
-                      '                   Example:\n' +
-                      '                    > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
+    }, 1, ['string'], 'newPlaylist    -- Creates a new playlist with the name specified.\n' +
+                      '                      Example:\n' +
+                      '                       > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
     /*
      *  PlaylistAdd adds a somg to a playlist
@@ -281,9 +281,9 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 2, ['string', 'string'], 'playlistAdd -- Adds a song to the specified playlist.\n'+
-                                '                   Example:\n'+
-                                '                    > '+app.config.prefix+'playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
+    }, 2, ['string', 'string'], 'playlistAdd    -- Adds a song to the specified playlist.\n'+
+                                '                      Example:\n'+
+                                '                       > '+app.config.prefix+'playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
 
     /*
      *  QueuePlaylist command will add all the songs in a playlist to the queue
@@ -329,9 +329,9 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 1, ['string'], 'queuePlaylist -- Use this command to queue all songs from a playlist.\n'+
-                      '                     Example:\n'+
-                      '                      > '+app.config.prefix+'queuePlaylist Gaming');
+    }, 1, ['string'], 'queuePlaylist  -- Use this command to queue all songs from a playlist.\n'+
+                      '                      Example:\n'+
+                      '                       > '+app.config.prefix+'queuePlaylist Gaming');
 
     /*
      *  PlaylistInfo will give you the names of all the songs in the playlist
@@ -367,7 +367,7 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 1, ['string'], 'playlistInfo -- Lists all songs in the playlist');
+    }, 1, ['string'], 'playlistInfo   -- Lists all songs in the playlist');
 
     /*
      * PlaylistRemove command removed a song from a playlist

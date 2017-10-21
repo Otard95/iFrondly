@@ -13,7 +13,7 @@ module.exports = function (commands, app) {
         msg.channel.send('Pong!');
         resolve('Ping. Pong!');
       });
-    }, 0, [], 'ping  -- Pong!');
+    }, 0, [], 'ping           -- Pong!');
 
     // Add 'help' command
     commands.add('help', (msg, params) => {
@@ -51,11 +51,16 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 0, ['string'], 'help  -- Show this info.\n'+
-                      '        You can also get help on a specific command like this "'+app.config.prefix+'help <command name here>"\n'+
-                      '            Example:\n'+
-                      '             > '+app.config.prefix+'help ping');
+    }, 0, ['string'], 'help           -- Show this info.\n'+
+                      '                  You can also get help on a specific command like this "'+app.config.prefix+'help <command name here>"\n'+
+                      '                      Example:\n'+
+                      '                       > '+app.config.prefix+'help ping');
 
+    commands.add('changelog', (msg, params) => {
+
+      
+
+    }, 0, [], 'changelog      -- Have a look at the latest change log.');
 
     console.log('Done!');
   };

@@ -56,10 +56,10 @@ module.exports = function (commands, app) {
       });
 
 
-    }, 0, ['string'], 'join  -- Joins your voice channel or the one specified.\n'+
-                      '            Example:\n'+
-                      '             > '+app.config.prefix+'join // joins your voice channel\n'+
-                      "             > '+app.config.prefix+'join Chill // joins channel named 'Chill'");
+    }, 0, ['string'], 'join           -- Joins your voice channel or the one specified.\n'+
+                      '                      Example:\n'+
+                      '                       > '+app.config.prefix+'join // joins your voice channel\n'+
+                      '                       > '+app.config.prefix+'join Chill // joins channel named \'Chill\'');
 
     commands.add('leave', (msg, params) => {
 
@@ -80,7 +80,7 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 0, [], 'leave -- Leaves the current voice channel if any.');
+    }, 0, [], 'leave          -- Leaves the current voice channel if any.');
 
 
     console.log('Done!');
