@@ -32,13 +32,21 @@ module.exports = function (commands, app) {
           return;
         }
 
-        let outString = '```\n' + commands.help.desc + '\n\n';
+        let outString = [commands.help.desc + '\n\n'];
         for (let c in commands) {
           if (commands.exists(c) && c != 'help') {
-            outString += commands[c].desc + '\n\n';
+            let currOutLen = outString[outString.length-1].length;
+            if ((currOutLen + commands[c].desc.length) < (2000-8)) {
+              outString[outString.length-1] += commands[c].desc + '\n\n';
+            } else {
+              outString.push(commands[c].desc + '\n\n');
+            }
           }
         }
-        msg.author.send(outString + '```');
+        for (let i = 0; i < outString.length; i++) {
+          msg.author.send('```\n' + outString[i] + '```');
+        }
+
         resolve('Gave help to a user!');
 
       });
