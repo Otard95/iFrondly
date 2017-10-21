@@ -9,7 +9,19 @@ module.exports = function (commands, app) {
   console.log('Loading command module: Playlist...');
 
   app.db.createDB('playlists').then((res) => {
-    console.log('Playlist database first time setup complete:\n'+res.message);
+    console.log('Playlist database first time setup: '+res.message);
+    let template = {
+      tableName: '',
+      owner: ['']
+    };
+    app.db.execute('createTable', 'playlists', 'playlistOwner', template)
+      .then((res) => {
+        console.log('Playlist database first time setup complete:\n'+
+                    res.humanreadable);
+      }).catch((err) => {
+        console.log('Unexpected error:\n', err);
+        exit(2);
+      });
   }).catch((err) => {
     if (err.statusCode == app.db.codes.U_DATABASE_ALLREADY_EXISTS) {
       console.log('Playlist database foud:\n'+err.humanreadable);
@@ -19,9 +31,39 @@ module.exports = function (commands, app) {
     }
   });
 
+  function isOwner (author, playlist) {
+    return new Promise((resolve, reject) => {
+      let selector = {
+        tableName: playlist
+      };
+      app.db.execute('select', 'playlists', 'playlistOwner', selector)
+        .then((res) => {
+          if (res.statusCode == app.db.codes.NONE_FOUND) {
+            reject('No entry found');
+          } else {
+            let inc = res.res[0].owner.includes(''+author.username + author.tag);
+            if (inc) {
+              resolve();
+            } else {
+              reject('not owner');
+            }
+          }
+        }).catch((err) => {
+          reject('err');
+        });
+    });
+  }
+
   let mod = {};
 
   mod.init = () => {
+
+    /*
+     *  NewPlaylist command creates a new playlist and adds the
+     *  msg author as the owner.
+     *  playlist are public but only the creator can edit them.
+     */
+
     commands.add('newPlaylist', (msg, params) => {
 
       return new Promise((resolve, reject) => {
@@ -29,10 +71,34 @@ module.exports = function (commands, app) {
         app.db.execute('createTable', 'playlists', params[0])
           .then((res) => {
 
-            msg.reply('I creted your new playlist \''+params[0]+'\'.'+
-                      ' Use `'+app.config.prefix+'playlistAdd` to add '+
-                      'songs to this playlist');
-            resolve('Playlist create - Created \''+params[0]+'\'');
+            // table created now assign the owner
+            let owner = {
+              tableName: params[0],
+              owner: [''+msg.author.username + msg.author.tag],
+              // make sure this ownership doesn't allready exits
+              exists: (o1, o2) => o1.tableName == o2.tableName
+            };
+            app.db.execute('insert', 'playlists', 'playlistsOwner', owner)
+              .then((res) => {
+
+                // ownership registered
+                msg.reply('I creted your new playlist \''+params[0]+'\'.'+
+                          ' Use `'+app.config.prefix+'playlistAdd` to add '+
+                          'some songs to it.');
+                resolve('Playlist create - Created \''+params[0]+'\'');
+
+              }).catch((err)=> {
+
+                // something whent worng the ownership could not be registered
+                // so we neet to remove the playlist
+                msg.reply('I his a bit of a snag. Try once again.');
+                reject('Playlist create - unexpected error:\n',err);
+                // try cleanup
+                app.db.execute('dropTable', 'playlists', params[0])
+                  .then( () => console.log(' -- table removed'))
+                  .catch(() => console.log(' -- could not remove table'));
+
+              });
 
           }).catch((err) => {
 
@@ -59,19 +125,37 @@ module.exports = function (commands, app) {
                       '                   Example:\n' +
                       '                    > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
 
+    /*
+     *  PlaylistAdd adds a somg to a playlist
+     */
 
     commands.add('playlistAdd', (msg, params, internalChecks) => {
 
       return new Promise((resolve, reject) => {
 
-
         if (!internalChecks){// check is playlist exists
+
           app.db.execute('select', 'playlists', params[0])
           .then((res) => {
-            commands.playlistadd.run(msg, params, true)
-              .then ( res=>resolve(res) )
-              .catch( err=>reject (err) );
+
+            isOwner(msg.author, params[0])
+              .then(() => {
+
+                commands.playlistadd.run(msg, params, true)
+                  .then ( res=>resolve(res) )
+                  .catch( err=>reject (err) );
+
+              }).catch((err) => {
+
+                msg.reply('You can only edit playlist that you yourself created,'+
+                          ' or if the owner shared the playlist with you.\n'+
+                          'If you you think this is a mistake contact my creator.');
+                reject('Playlist add | owner check: ' + err);
+
+              });
+
           }).catch((err) => {
+
             if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
               msg.reply('That playlist doesn\'t exits. '+
                         'You can create a new playlist using the `'+
@@ -79,6 +163,7 @@ module.exports = function (commands, app) {
               reject('Playlist add - failed, no such playlist');
               tableEx = false;
             }
+
           });
           return;
         }
@@ -200,6 +285,10 @@ module.exports = function (commands, app) {
                                 '                   Example:\n'+
                                 '                    > '+app.config.prefix+'playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
 
+    /*
+     *  QueuePlaylist command will add all the songs in a playlist to the queue
+     */
+
     commands.add('queuePlaylist', (msg, params) => {
 
       return new Promise((resolve, reject) => {
@@ -244,6 +333,9 @@ module.exports = function (commands, app) {
                       '                     Example:\n'+
                       '                      > '+app.config.prefix+'queuePlaylist Gaming');
 
+    /*
+     *  PlaylistInfo will give you the names of all the songs in the playlist
+     */
 
     commands.add('playlistInfo', (msg, params) => {
 
@@ -277,39 +369,61 @@ module.exports = function (commands, app) {
 
     }, 1, ['string'], 'playlistInfo -- Lists all songs in the playlist');
 
-
-    commands.add('playlistRemove', (msg, params) => {
+    /*
+     * PlaylistRemove command removed a song from a playlist
+     */
+    commands.add('playlistRemove', (msg, params, ownerCheck) => {
 
       return new Promise((resolve, reject) => {
 
-        app.db.execute('delete', 'playlists', params[0], (el, i) => {
+        // check creator
+        if (ownerCheck == undefined) {
+          isOwner(msg.author, params[0])
+            .then((res) => {
+
+              commands.playlistremove.run(msg, params, true)
+                .then (res => resolve(res))
+                .catch(err => reject (err));
+
+            }).catch((err) => {
+
+              reject('Playlist remove failed - owner check: ', err);
+
+            });
+          return;
+        }
+
+        let selector = (el, i) => {
           for (let index = 1; index < params.length; index++) {
             if (i == (parseInt(params[index]) - 1)) return true;
           }
           return false;
-        }).then((res) => {
+        };
 
-          if (res.statusCode == app.db.codes.NONE_FOUND) {
-            msg.reply('I couldn\'t find '+
-                       params.length > 2 ? 'any of these songs.' : 'that song.');
-            reject('Playlist remove - NONE_FOUND');
-          } else {
-            msg.reply('Removed '+
-                       (res.res.length==(params.length-1)?'all':res.res.length)+
-                       ' of the '+
-                       (params.length-1)+' song'+(params.length>2?'s':'')+
-                       ' you specified.');
-          }
+        app.db.execute('delete', 'playlists', params[0], selector)
+          .then((res) => {
 
-        }).catch((err) => {
-          if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
-            msg.reply('\''+params[0]+'\' is not a playlist');
-            reject('Playlist remove - no such playlist');
-          } else {
-            msg.reply('I hit a snag. Lets give it one more shot.');
-            reject('Playlist remove - error:\n'+err.message);
-          }
-        });
+            if (res.statusCode == app.db.codes.NONE_FOUND) {
+              msg.reply('I couldn\'t find '+
+                         params.length > 2 ? 'any of these songs.' : 'that song.');
+              reject('Playlist remove - NONE_FOUND');
+            } else {
+              msg.reply('Removed '+
+                         (res.res.length==(params.length-1)?'all':res.res.length)+
+                         ' of the '+
+                         (params.length-1)+' song'+(params.length>2?'s':'')+
+                         ' you specified.');
+            }
+
+          }).catch((err) => {
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('\''+params[0]+'\' is not a playlist');
+              reject('Playlist remove - no such playlist');
+            } else {
+              msg.reply('I hit a snag. Lets give it one more shot.');
+              reject('Playlist remove - error:\n'+err.message);
+            }
+          });
 
       });
 
