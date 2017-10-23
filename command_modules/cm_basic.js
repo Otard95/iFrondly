@@ -1,4 +1,8 @@
 /*jshint esversion: 6 */
+/*jshint node: true */
+
+const fs   = require('fs');
+const path = require('path');
 
 module.exports = function (commands, app) {
 
@@ -58,7 +62,24 @@ module.exports = function (commands, app) {
 
     commands.add('changelog', (msg, params) => {
 
-      
+      return new Promise((resolve, reject) => {
+
+        let sendSamll = function (str) {
+          if (str.length > 2000) {
+            let strArr = str.split(' ');
+            let firstHalf = strArr.splice(0, Math.round(strArr.length/2));
+            sendSamll(firstHalf.join(' '));
+            sendSamll(strArr.join(' '));
+          } else {
+            msg.author.send(str);
+          }
+        };
+
+        let file = path.resolve(prosess.cwd(), 'LatestChanges.md');
+        let fileContent = fs.readFileSync(file);
+        sendSamll(fileContent);
+
+      });
 
     }, 0, [], 'changelog      -- Have a look at the latest change log.');
 
