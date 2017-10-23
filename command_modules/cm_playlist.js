@@ -11,8 +11,8 @@ module.exports = function (commands, app) {
   app.db.createDB('playlists').then((res) => {
     console.log('Playlist database first time setup: '+res.message);
     let template = {
-      tableName: '',
-      owner: ['']
+      tableName: 'nameOfTable',
+      owner: ['name#tag']
     };
     app.db.execute('createTable', 'playlists', 'playlistOwner', template)
       .then((res) => {
@@ -31,7 +31,7 @@ module.exports = function (commands, app) {
     }
   });
 
-  function isOwner (author, playlist) {
+  function isOwner (msg, playlist) {
     return new Promise((resolve, reject) => {
       let selector = {
         tableName: playlist
@@ -41,8 +41,9 @@ module.exports = function (commands, app) {
           if (res.statusCode == app.db.codes.NONE_FOUND) {
             reject('No entry found');
           } else {
-            let inc = res.res[0].owner.includes(''+author.username + author.tag);
-            if (inc) {
+            let inc = res.res[0].owner.includes(''+msg.author.tag);
+            let adminRole = msg.member.roles.find(val => val.hasPermission('ADMINISTRATOR'));
+            if (inc || adminRole != undefined) {
               resolve();
             } else {
               reject('not owner');
@@ -52,6 +53,14 @@ module.exports = function (commands, app) {
           reject('err');
         });
     });
+  }
+
+  function isMember (msg, userString) {
+    let mem = msg.guild.members.find(val => {
+      return userString == val.user.tag;
+    });
+    if (mem != undefined) return true;
+    return false;
   }
 
   let mod = {};
@@ -74,11 +83,12 @@ module.exports = function (commands, app) {
             // table created now assign the owner
             let owner = {
               tableName: params[0],
-              owner: [''+msg.author.username + msg.author.tag],
+              owner: [''+msg.author.tag],
               // make sure this ownership doesn't allready exits
-              exists: (o1, o2) => o1.tableName == o2.tableName
+              equals: (o1, o2) => o1.tableName == o2.tableName
             };
-            app.db.execute('insert', 'playlists', 'playlistsOwner', owner)
+
+            app.db.execute('insert', 'playlists', 'playlistOwner', owner)
               .then((res) => {
 
                 // ownership registered
@@ -92,7 +102,8 @@ module.exports = function (commands, app) {
                 // something whent worng the ownership could not be registered
                 // so we neet to remove the playlist
                 msg.reply('I his a bit of a snag. Try once again.');
-                reject('Playlist create - unexpected error:\n',err);
+                reject('Playlist create - unexpected error');
+                console.log(err);
                 // try cleanup
                 app.db.execute('dropTable', 'playlists', params[0])
                   .then( () => console.log(' -- table removed'))
@@ -102,7 +113,7 @@ module.exports = function (commands, app) {
 
           }).catch((err) => {
 
-            if (err.statusCode == app.db.U_TABLE_ALLREADY_EXISTS) {
+            if (err.statusCode == app.db.codes.U_TABLE_ALLREADY_EXISTS) {
               // playlist allready exists
               msg.reply('This playlist allready exists. You can add songs to '+
                         'this playlit using `'+app.config.prefix+'playlistAdd`.');
@@ -123,7 +134,7 @@ module.exports = function (commands, app) {
 
     }, 1, ['string'], 'newPlaylist    -- Creates a new playlist with the name specified.\n' +
                       '                      Example:\n' +
-                      '                       > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gameing\'');
+                      '                       > '+app.config.prefix+'newplaylist Gaming // Createds a new empty playlist named \'Gaming\'');
 
     /*
      *  PlaylistAdd adds a somg to a playlist
@@ -138,7 +149,7 @@ module.exports = function (commands, app) {
           app.db.execute('select', 'playlists', params[0])
           .then((res) => {
 
-            isOwner(msg.author, params[0])
+            isOwner(msg, params[0])
               .then(() => {
 
                 commands.playlistadd.run(msg, params, true)
@@ -283,7 +294,7 @@ module.exports = function (commands, app) {
 
     }, 2, ['string', 'string'], 'playlistAdd    -- Adds a song to the specified playlist.\n'+
                                 '                      Example:\n'+
-                                '                       > '+app.config.prefix+'playlistadd Gameing <youtube url> // adds the song from the link to the \'Gameing\' playlist.');
+                                '                       > '+app.config.prefix+'playlistadd Gaming <youtube url> // adds the song from the link to the \'Gaming\' playlist.');
 
     /*
      *  QueuePlaylist command will add all the songs in a playlist to the queue
@@ -378,7 +389,7 @@ module.exports = function (commands, app) {
 
         // check creator
         if (ownerCheck == undefined) {
-          isOwner(msg.author, params[0])
+          isOwner(msg, params[0])
             .then((res) => {
 
               commands.playlistremove.run(msg, params, true)
@@ -387,6 +398,9 @@ module.exports = function (commands, app) {
 
             }).catch((err) => {
 
+              msg.reply('You can only edit playlist that you yourself created,'+
+                        ' or if the owner shared the playlist with you.\n'+
+                        'If you you think this is a mistake contact my creator.');
               reject('Playlist remove failed - owner check: ', err);
 
             });
@@ -432,6 +446,80 @@ module.exports = function (commands, app) {
                                 '                  `'+app.config.prefix+'help` connamd if you want more information.\n'+
                                 '                      Example:\n'+
                                 '                       > '+app.config.prefix+'playlistRemove Gaming 3 // deletes the third song in the playlist');
+
+    /*
+     *  Share Playlist Command will add a user as a owner.
+     */
+    commands.add('sharePlaylist', (msg, params, ownerCheck) => {
+
+      return new Promise((resolve, reject) => {
+
+        if (ownerCheck == undefined) {
+          isOwner(msg, params[0])
+            .then((res) => {
+
+              // also make sure that the specified user actually exists
+              if (isMember(msg, params[1])) {
+
+                commands.shareplaylist.run(msg, params, true)
+                  .then (res => resolve(res))
+                  .catch(err => reject (err));
+
+              } else {
+
+                msg.reply(params[1] + ' is not a member on this server');
+                reject('Playlist share failed - member doesn\'t exist');
+
+              }
+
+            }).catch((err) => {
+
+              msg.reply('You can only edit playlist that you yourself created,'+
+                        ' or if the owner shared the playlist with you.\n'+
+                        'If you you think this is a mistake contact my creator.');
+              reject('Playlist share failed - owner check: '+ err);
+
+            });
+          return;
+        }
+
+        let selector = { tableName: params[0] };
+        let update = (item) => {
+          item.owner.push(params[1]);
+        };
+        app.db.execute('update', 'playlists', 'playlistOwner', selector, update)
+          .then((res) => {
+
+            if (res.statusCode == app.db.codes.NONE_FOUND) {
+              msg.channel.send('There doesn\'t seem to be any playlists. '+
+                               'Use `'+app.config.prefix+'newPlaylist` to add one.');
+              reject('Playlist share | no playlists');
+            } else {
+              msg.author.send(params[1] + ' can now edit your \''+params[0]+'\' playlist');
+              msg.guild.members.find(val => {
+                return params[1] == val.user.tag;
+              }).send(msg.author.username + ' shared the playlist \''+params[0]+'\' with you.');
+              resolve('Playlist share successful');
+            }
+
+          }).catch((err) => {
+
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('There is no playlist with that name');
+              reject('Playlist share failed | no playlist by the name \'' + params[0] + '\'');
+            } else {
+              msg.author.send('I ran into some problems and could not share your playlist. '+
+                              'If the problem persists please contact my creator.');
+              reject('Playlist share failed | unexpected error:' + err);
+            }
+
+          });
+
+      });
+
+    }, 2, ['string', 'string'], 'sharePlaylist  -- Registers a user as a owner of a specific playlist.\n'+
+                                '                      Example:\n'+
+                                '                       > !sharePlaylist Gaming Otard95#6951 // adds Otard95 with the tag 6951 as a owner of the \'Gaming\'.debugger');
 
     console.log('Done!');
 
