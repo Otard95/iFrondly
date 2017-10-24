@@ -75,9 +75,12 @@ module.exports = function (commands, app) {
           }
         };
 
-        let file = path.resolve(prosess.cwd(), 'LatestChanges.md');
-        let fileContent = fs.readFileSync(file);
+        let file = path.resolve(process.cwd(), 'LatestChanges.md');
+        console.log(file);
+        let fileContent = fs.readFileSync(file, 'utf8');
+        console.log(fileContent);
         sendSamll(fileContent);
+        resolve('Sendt changelog to user.');
 
       });
 
