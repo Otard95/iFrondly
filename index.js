@@ -95,7 +95,7 @@ client.on('message', (msg)=>{
   // All types are correct. Preform task
   cmnd.run(msg, c.params)
     .then((res) => { console.log(res); })
-    .catch((err) => { console.log(err); });
+    .catch((err, detail) => { console.log(err, detail); });
 
 });
 
