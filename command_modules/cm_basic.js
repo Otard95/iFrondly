@@ -84,7 +84,7 @@ module.exports = function (commands, app) {
 
       });
 
-    }, 0, [], 'changelog      -- Have a look at the latest change log.');
+    }, 0, [], 'changelog      -- Have a look at the latest changes.');
 
     console.log('Done!');
   };
