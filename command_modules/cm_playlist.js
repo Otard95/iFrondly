@@ -12,6 +12,7 @@ module.exports = function (commands, app) {
     console.log('Playlist database first time setup: '+res.message);
     let template = {
       tableName: 'nameOfTable',
+      public: false,
       owner: ['name#tag']
     };
     app.db.execute('createTable', 'playlists', 'playlistOwner', template)
@@ -31,8 +32,27 @@ module.exports = function (commands, app) {
     }
   });
 
-  function isOwner (msg, playlist) {
+  function isOwner (msg, playlist, options) {
+
+    // Check options and set defaults if needed
+    if (options == undefined) {
+      options = {
+        originalOwner: false,
+        adminException: true
+      };
+    }
+
+    if (options.originalOwner == undefined) options.originalOwner = false;
+    if (options.adminException == undefined) options.adminException = true;
+
     return new Promise((resolve, reject) => {
+
+      let adminRole = msg.member.roles.find(val => val.hasPermission('ADMINISTRATOR'));
+      if (adminRole != undefined && options.adminException) {
+        resolve();
+        return;
+      }
+
       let selector = {
         tableName: playlist
       };
@@ -41,9 +61,19 @@ module.exports = function (commands, app) {
           if (res.statusCode == app.db.codes.NONE_FOUND) {
             reject('No entry found');
           } else {
-            let inc = res.res[0].owner.includes(''+msg.author.tag);
-            let adminRole = msg.member.roles.find(val => val.hasPermission('ADMINISTRATOR'));
-            if (inc || adminRole != undefined) {
+            // if public resolve immediately
+            if (res.res[0].public && !options.originalOwner){
+              resolve();
+              return;
+            }
+
+            let owner;
+            if (options.originalOwner){
+              owner = res.res[0].owner[0] == (''+msg.author.tag);
+            } else {
+              owner = res.res[0].owner.includes(''+msg.author.tag);
+            }
+            if (owner) {
               resolve();
             } else {
               reject('not owner');
@@ -83,6 +113,7 @@ module.exports = function (commands, app) {
             // table created now assign the owner
             let owner = {
               tableName: params[0],
+              public: false,
               owner: [''+msg.author.tag],
               // make sure this ownership doesn't allready exits
               equals: (o1, o2) => o1.tableName == o2.tableName
@@ -455,7 +486,7 @@ module.exports = function (commands, app) {
       return new Promise((resolve, reject) => {
 
         if (ownerCheck == undefined) {
-          isOwner(msg, params[0])
+          isOwner(msg, params[0], {originalOwner: true, adminException: false})
             .then((res) => {
 
               // also make sure that the specified user actually exists
@@ -474,8 +505,7 @@ module.exports = function (commands, app) {
 
             }).catch((err) => {
 
-              msg.reply('You can only edit playlist that you yourself created,'+
-                        ' or if the owner shared the playlist with you.\n'+
+              msg.reply('You can only share playlist that you yourself created.\n'+
                         'If you you think this is a mistake contact my creator.');
               reject('Playlist share failed - owner check: '+ err);
 
@@ -520,6 +550,130 @@ module.exports = function (commands, app) {
     }, 2, ['string', 'string'], 'sharePlaylist  -- Registers a user as a owner of a specific playlist.\n'+
                                 '                      Example:\n'+
                                 '                       > !sharePlaylist Gaming Otard95#6951 // adds Otard95 with the tag 6951 as a owner of the \'Gaming\'.debugger');
+
+    /*
+     *  Public Playlist
+     *  Toggles whether a playlist is public you not.
+     */
+    commands.add('playlistPublic', (msg, params, ownerCheck) => {
+
+      return new Promise((resolve, reject) => {
+
+        if (ownerCheck == undefined) {
+          isOwner(msg, params[0], {originalOwner: true, adminException: false})
+            .then((res) => {
+
+              commands.playlistpublic.run(msg, params, true)
+                .then (res => resolve(res))
+                .catch(err => reject (err));
+
+            }).catch((err) => {
+
+              msg.reply('You can only make a playlist public if you yourself created it.\n'+
+                        'If you you think this is a mistake contact my creator.');
+              reject('Playlist share failed - owner check: '+ err);
+
+            });
+          return;
+        }
+
+        let selector = { tableName: params[0] };
+        let update = (item) => {
+          item.public = !item.public;
+        };
+        app.db.execute('update', 'playlists', 'playlistOwner', selector, update)
+          .then((res) => {
+
+            if (res.statusCode == app.db.codes.NONE_FOUND) {
+              msg.channel.send('There doesn\'t seem to be any playlists. '+
+                               'Use `'+app.config.prefix+'newPlaylist` to add one.');
+              reject('Playlist public | no playlists');
+            } else {
+              // resolve here
+              msg.channel.send('The playlist \''+params[0]+'\' is now '+
+                                (res.res[0].public ? 'public':'private'));
+              resolve('Playlist public | ' + params[0] +
+                      (res.res[0].public ? ' public':' private'));
+            }
+
+          }).catch((err) => {
+
+            if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
+              msg.reply('There is no playlist with that name');
+              reject('Playlist public failed | no playlist by the name \'' + params[0] + '\'');
+            } else {
+              msg.author.send('I ran into some problems and could not share your playlist. '+
+                              'If the problem persists please contact my creator.');
+              reject('Playlist public failed | unexpected error:' + err);
+            }
+
+          });
+
+      });
+
+    }, 1, ['string'], 'playlistPublic -- Toggles weather this playlist is public or not.\n'+
+                      '                      Example:\n'+
+                      '                       > !playlistPublic Gaming');
+
+    /*
+     *  Delete playlist command does exactly that deletes a playlist.
+     */
+    commands.add('deletePlaylist', (msg, params, ownerCheck) => {
+
+      return new Promise((resolve, reject) => {
+
+        if (ownerCheck == undefined) {
+          isOwner(msg, params[0], {originalOwner: true, adminException: true})
+            .then((res) => {
+
+              commands.deleteplaylist.run(msg, params, true)
+                .then (res => resolve(res))
+                .catch(err => reject (err));
+
+            }).catch((err) => {
+
+              msg.reply('You can only make a playlist public if you yourself created it.\n'+
+                        'If you you think this is a mistake contact my creator.');
+              reject('Playlist share failed - owner check: '+ err);
+
+            });
+          return;
+        }
+
+        let selector = { tableName: params[0] };
+        app.db.execute('delete', 'playlists', 'playlistOwner', selector) // remove ownership
+          .then((res) => {
+            app.db.execute('dropTable', 'playlists', params[0]) // drop table
+              .then((res) => {
+
+                msg.channel.send('The playlist \''+params[0]+'\' has beed delted.');
+                resolve('Delete playlist | deleted \''+params[0]+'\'');
+
+              }).catch((err) => { // catch err and reinsert ownership
+                app.db.execute('insert', 'playlists', 'playlistOwner', res.res[0])
+                  .then((res) => {
+                    msg.reply('I was unable to delete the playlist. '+
+                              'If the problem persists contact my creator.');
+                    reject('Delete playlist failed | failed to drop table '+
+                           '(reinserted ownership).', err);
+                  }).catch((err) => { // catch error when reinserting ownership
+                    msg.reply('I was unable to delete the playlist but its no '+
+                              'longer protected by ownership. Pleace contact me creator.');
+                    reject('Delete playlist failed | unable to reinsert ownership of the '+
+                           'playlist \''+params[0]+'\' after failing to drop table', err);
+                  });
+              });
+          }).catch((err) => { // catch error on delete owner
+            msg.reply('I was unable to delete the playlist. '+
+                      'If the problem persists contact my creator.');
+            reject('Delete playlist failed | failed to remove ownership.', err);
+          });
+
+      });
+
+    }, 1, ['string'], 'deletePlaylist -- Does exactly that, deletes a playlist.\n'+
+                      '                     Example:\n'+
+                      '                      > !deletePlaylist Gaming');
 
     console.log('Done!');
 
