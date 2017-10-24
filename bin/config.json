@@ -6,5 +6,6 @@
   "skipPassRatio": 0.4,
   "skipVoteMsgPrefab": "Vote to skip \"&s;\" is &p; in favour",
   "songTitleLength": 40,
+  "dbPath": "../sJSON_DB",
   "DBSaveFormated": true
 }
