@@ -346,6 +346,20 @@ module.exports = function (commands, app) {
               return;
             }
             songs = res.res;
+
+            /* songs from the database don't have a msg attaced whish
+             * is needed for other tasks. so add the current msg to the songs
+             */
+            for (let i = 0; i < songs.length; i++) {
+              songs[i].originalMessage = msg;
+            }
+
+            // now appand the songs to the existing queue
+            app.musicPlayer.queue = app.musicPlayer.queue.concat(songs);
+
+            msg.reply('I queued the songs from the \''+params[0]+'\' playlist.');
+            resolve('Playlist queue - queued playlist \''+params[0]+'\'');
+
           }).catch((err) => {
             if (err.statusCode == app.db.codes.U_TABLE_NOT_FOUND) {
               msg.reply('That playlist doesn\'t exits. '+
@@ -355,19 +369,6 @@ module.exports = function (commands, app) {
               return;
             }
           });
-
-          /* songs from the database don't have a msg attaced whish
-           * is needed for other tasks. so add the current msg to the songs
-           */
-          for (let i = 0; i < songs.length; i++) {
-            songs[i].originalMessage = msg;
-          }
-
-          // now appand the songs to the existing queue
-          app.musicPlayer.queue = app.musicPlayer.queue.concat(songs);
-
-          msg.reply('I queued the songs from the \''+params[0]+'\' playlist.');
-          resolve('Playlist queue - queued playlist \''+params[0]+'\'');
 
       });
 
@@ -549,7 +550,7 @@ module.exports = function (commands, app) {
 
     }, 2, ['string', 'string'], 'sharePlaylist  -- Registers a user as a owner of a specific playlist.\n'+
                                 '                      Example:\n'+
-                                '                       > !sharePlaylist Gaming Otard95#6951 // adds Otard95 with the tag 6951 as a owner of the \'Gaming\'.debugger');
+                                '                       > !sharePlaylist Gaming Otard95#6951 // adds Otard95 with the tag 6951 as a owner of the \'Gaming\' playlist');
 
     /*
      *  Public Playlist
