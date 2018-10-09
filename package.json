@@ -21,7 +21,7 @@
     "ffmpeg-binaries": "^3.2.2",
     "libsodium-wrappers": "^0.5.4",
     "node-opus": "0.2.7",
-    "simple_json_database": "github:Otard95/simple_json_database",
+    "simple-json-database": "github:Otard95/simple-json-database",
     "ytdl-core": "github:fent/node-ytdl-core#master"
   }
 }
